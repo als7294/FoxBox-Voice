@@ -1,0 +1,684 @@
+/* Feedback layers per the design canvas: banner, toast, scrims/dialogs, boot, wipe, and the in-panel states. */
+
+/* ---------------------------------------------------------------- in-panel states */
+.empty,
+.error,
+.progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  padding: 16px;
+}
+.empty[data-overlay],
+.error[data-overlay],
+.progress[data-overlay] {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(var(--vb-panel-rgb), 0.72);
+  z-index: 2;
+}
+.empty[data-overlay] > *,
+.error[data-overlay] > *,
+.progress[data-overlay] > * {
+  pointer-events: auto;
+}
+.error:not([data-overlay]) {
+  border: 1px dashed var(--vb-danger);
+  border-radius: var(--vb-r1);
+}
+.emptyTitle,
+.errorTitle,
+.progressLabel {
+  margin: 0;
+  font: var(--vb-display-weight) 30px/1 var(--vb-font-display);
+  letter-spacing: 0.12em;
+}
+.empty[data-overlay] .emptyTitle {
+  font-size: 36px;
+  letter-spacing: 0.16em;
+}
+.progressLabel {
+  font: 500 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0.12em;
+  color: var(--vb-dim);
+}
+.errorTitle {
+  color: var(--vb-danger);
+}
+.emptyBody,
+.hint {
+  margin: 0;
+  color: var(--vb-dim);
+  font: 500 var(--vb-text-min)/1.5 var(--vb-font-mono);
+  letter-spacing: 0.12em;
+}
+.error p {
+  margin: 0;
+}
+.actions {
+  display: flex;
+  gap: 8px;
+}
+.progressBar {
+  position: relative;
+  width: min(320px, 80%);
+  height: 3px;
+  background: rgba(var(--vb-ink-rgb), 0.08);
+  overflow: hidden;
+}
+.progressFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--vb-amber);
+  box-shadow: 0 0 calc(10px * var(--vb-glow)) var(--vb-amber);
+}
+.progressBar[data-indeterminate] .progressFill {
+  width: 30%;
+  animation: slide 1.1s var(--vb-ease) infinite;
+}
+@keyframes slide {
+  from {
+    left: -30%;
+  }
+  to {
+    left: 100%;
+  }
+}
+
+/* ---------------------------------------------------------------- banner */
+.banner {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  transform: translate(-50%, 0);
+  z-index: 70;
+  width: min(680px, 80%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 12px 12px 16px;
+  background: var(--vb-raise);
+  --col: var(--vb-ink);
+  border: 1px solid var(--col);
+  border-radius: var(--vb-r2);
+  box-shadow: var(--vb-pop);
+}
+.banner[data-kind='err'] {
+  --col: var(--vb-accent);
+}
+.banner[data-kind='warn'] {
+  --col: var(--vb-amber);
+}
+.bannerIcon {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--col);
+  border-radius: 50%;
+  color: var(--col);
+  font: 700 12px var(--vb-font-mono);
+}
+.bannerText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bannerTitle {
+  font: var(--vb-display-weight) 17px/1 var(--vb-font-display);
+  letter-spacing: 0.14em;
+  color: var(--col);
+}
+.bannerBody {
+  font: 400 11px/1.45 var(--vb-font-mono);
+  overflow-wrap: anywhere;
+}
+.bannerAction {
+  flex: none;
+  height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--vb-r1);
+  background: var(--vb-ink);
+  color: var(--vb-bg);
+  font: var(--vb-display-weight) 13px/1 var(--vb-font-display);
+  letter-spacing: 0.14em;
+}
+.bannerClose {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  background: none;
+  color: var(--vb-dim);
+  font: 700 14px var(--vb-font-mono);
+}
+.bannerClose:hover {
+  color: var(--vb-ink);
+}
+
+/* ---------------------------------------------------------------- screen wipe */
+.fx {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 40;
+}
+
+/* ---------------------------------------------------------------- toast */
+.toast {
+  position: absolute;
+  right: 24px;
+  /* Top right, below the SIGNAL header row: clear of the transport (PLAY, A/B, LOOP) and the OUTPUT actions (UX #12, #14). */
+  top: calc(var(--vb-top-h) + 64px);
+  z-index: 80;
+  width: 380px;
+  background: var(--vb-raise);
+  --col: var(--vb-amber);
+  border: 1px solid rgba(var(--vb-amber-rgb), 0.4);
+  border-left: 0;
+  border-radius: var(--vb-r2);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: var(--vb-pop);
+}
+.toast[data-tone='error'] {
+  --col: var(--vb-danger);
+  border-color: rgba(var(--vb-danger-rgb), 0.55);
+}
+.toast[data-tone='info'] {
+  --col: var(--vb-ink);
+  border-color: var(--vb-line-3);
+}
+.toastHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.toastTitle {
+  flex: 1;
+  min-width: 0;
+  font: var(--vb-display-weight) 17px/1.05 var(--vb-font-display);
+  letter-spacing: 0.16em;
+  color: var(--col);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.toastClose {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  margin: -6px -8px 0 0;
+  border: 0;
+  background: none;
+  color: var(--vb-dim);
+  font: 700 13px var(--vb-font-mono);
+  padding: 0;
+}
+.toastBody {
+  font: 400 var(--vb-text-min)/1.5 var(--vb-font-mono);
+  word-break: break-all;
+}
+.toastDrag {
+  margin-top: 2px;
+  padding: 7px 9px;
+  border: 1px dashed rgba(var(--vb-amber-rgb), 0.45);
+  border-radius: var(--vb-r1);
+  cursor: grab;
+  font: 500 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0.12em;
+  color: var(--vb-amber);
+}
+.toastActions {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+.toastActions button {
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--vb-line-2);
+  border-radius: var(--vb-r1);
+  background: none;
+  color: var(--vb-ink);
+  font: 700 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0.12em;
+}
+.toastActions button:hover {
+  border-color: var(--vb-amber);
+  color: var(--vb-amber);
+}
+
+/* ---------------------------------------------------------------- scrim + dialogs */
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+  background: var(--vb-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.keysDialog {
+  width: 440px;
+  background: var(--vb-panel);
+  border: 1px solid var(--vb-line-2);
+  border-radius: var(--vb-r3);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.keysTitle {
+  font: var(--vb-display-weight) 26px/1 var(--vb-font-display);
+  letter-spacing: 0.14em;
+}
+.keysSub {
+  font: 400 var(--vb-text-min) var(--vb-font-mono);
+  color: var(--vb-dim);
+}
+.keysList {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.keysList > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(var(--vb-ink-rgb), 0.06);
+  font: 500 12px var(--vb-font-mono);
+}
+.keysList dt {
+  color: var(--vb-dim);
+}
+.keysList dd {
+  margin: 0;
+}
+.keysList kbd {
+  display: inline-block;
+  padding: 3px 8px;
+  border: 1px solid var(--vb-line-3);
+  border-radius: var(--vb-r2);
+  font: 500 12px var(--vb-font-mono);
+}
+.keysClose {
+  align-self: flex-end;
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid var(--vb-line-3);
+  border-radius: var(--vb-r1);
+  background: none;
+  color: var(--vb-ink);
+  font: 700 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0.12em;
+}
+.stepsPanel {
+  flex: none;
+  min-height: 0;
+  overflow: auto;
+  background: var(--vb-panel);
+  border: 1px solid rgba(var(--vb-amber-rgb), 0.35);
+  border-radius: var(--vb-r3);
+}
+.stepsInner {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.stepsKicker {
+  font: 500 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0.12em;
+  color: var(--vb-amber);
+}
+.stepsTitle {
+  font: var(--vb-display-weight) 30px/1 var(--vb-font-display);
+  letter-spacing: 0.1em;
+}
+.stepsBody {
+  font: 500 11px var(--vb-font-mono);
+  color: var(--vb-dim);
+  word-break: break-all;
+}
+.stepsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 0;
+  border-top: 1px solid var(--vb-line);
+  border-bottom: 1px solid var(--vb-line);
+}
+.stepsLabel {
+  font: 500 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0.12em;
+  color: var(--vb-dim);
+}
+.step {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 8px;
+  font: 400 12px/1.5 var(--vb-font-mono);
+}
+.stepN {
+  font: 700 16px/1.2 var(--vb-font-display);
+  color: var(--vb-accent);
+}
+.stepsActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.ghostBtn {
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--vb-line-3);
+  border-radius: var(--vb-r1);
+  background: none;
+  color: var(--vb-ink);
+  font: 700 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0.12em;
+}
+.doneBtn {
+  height: 36px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--vb-r1);
+  background: var(--vb-ink);
+  color: var(--vb-bg);
+  font: var(--vb-display-weight) 15px/1 var(--vb-font-display);
+  letter-spacing: 0.14em;
+}
+
+/* ---------------------------------------------------------------- boot */
+.boot {
+  /* The left column everything aligns to (the launch scene's sleeping fox sits on the right). */
+  --boot-left: clamp(48px, 7vw, 120px);
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  background: var(--vb-night);
+  overflow: hidden;
+  cursor: default;
+}
+/* The launch scene video, full-bleed behind everything (its poster frame under reduced motion). */
+.bootVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+/* Night scrim: dark on the left behind the lockup and along the top/bottom edge text (all of it AA), clearing
+   towards the right so the scene and its sleeping fox show. */
+.bootScrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(4, 7, 14, 0.78) 0, rgba(4, 7, 14, 0) 14%, rgba(4, 7, 14, 0) 84%, rgba(4, 7, 14, 0.82) 100%),
+    linear-gradient(90deg, rgba(4, 7, 14, 0.86) 0, rgba(4, 7, 14, 0.74) 34%, rgba(4, 7, 14, 0.3) 62%, rgba(4, 7, 14, 0.12) 100%);
+}
+.bootCv {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.bootEdge {
+  position: absolute;
+  left: 32px;
+  right: 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font: 500 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0.12em;
+  color: var(--vb-dim);
+  white-space: nowrap;
+}
+.bootEdge[data-edge='top'] {
+  top: 26px;
+}
+.bootEdge[data-edge='bottom'] {
+  bottom: 26px;
+}
+.bootDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--vb-accent);
+  box-shadow: 0 0 calc(8px * var(--vb-glow)) var(--vb-accent);
+}
+.bootRule {
+  flex: 1;
+  height: 1px;
+  background: rgba(var(--vb-ink-rgb), 0.08);
+}
+.bootHero {
+  /* The loading screen's lockup: the fox mark, the wordmark and the kicker, then the real progress. Left-aligned
+     in its column, vertically centred; the launch scene's fox has the right side. */
+  position: absolute;
+  inset: 0 auto 6vh 0;
+  width: min(48vw, 680px);
+  padding-left: var(--boot-left);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+  pointer-events: none;
+}
+.bootFox {
+  width: clamp(180px, 28vh, 320px);
+  height: clamp(180px, 28vh, 320px);
+  /* The mark's artwork sits 12.5 % inside its box: pull it onto the column's left edge. */
+  margin-left: calc(clamp(180px, 28vh, 320px) * -0.125);
+  filter: drop-shadow(0 0 calc(28px * var(--vb-glow)) rgba(var(--vb-accent-rgb), 0.35));
+}
+/* The foxbox + VOICE · BETA lockup (design/brand/wordmark/foxbox-voice-lockup.svg), as wide as the column allows. */
+.bootLockup {
+  display: block;
+  margin-top: clamp(14px, 2.4vh, 26px);
+  width: min(100%, clamp(380px, 38vw, 580px));
+  height: auto;
+}
+.bootKicker {
+  margin-top: 12px;
+  font: 500 13px/1 var(--vb-font-mono);
+  letter-spacing: 0.42em;
+  color: var(--vb-accent);
+}
+.bootProgress {
+  margin-top: clamp(22px, 4vh, 40px);
+  width: min(360px, 60vw);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+.bootBarTrack {
+  position: relative;
+  height: 2px;
+  background: rgba(var(--vb-ink-rgb), 0.1);
+}
+.bootBar {
+  position: absolute;
+  inset: 0;
+  background: var(--vb-accent);
+  box-shadow: 0 0 calc(8px * var(--vb-glow)) var(--vb-accent);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+.bootPct {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font: 500 12px var(--vb-font-mono);
+  letter-spacing: 0.12em;
+  color: var(--vb-dim);
+  font-variant-numeric: tabular-nums;
+}
+.bootPctNum {
+  color: var(--vb-ink);
+  font-weight: 700;
+}
+.bootStage {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+/* UPDATE REQUIRED (the update check at boot): its line over the bar, in the progress block's place. */
+.bootUpdateHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font: 500 12px var(--vb-font-mono);
+  letter-spacing: 0.12em;
+  color: var(--vb-ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* The boot log: small and dim at the bottom (the last few lines), never competing with the fox. */
+.bootLog {
+  position: absolute;
+  left: var(--boot-left);
+  bottom: 86px;
+  width: min(560px, 44vw);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.bootLine {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font: 500 11px/1.4 var(--vb-font-mono);
+  white-space: pre;
+  color: rgba(var(--vb-ink-rgb), 0.7);
+  overflow: hidden;
+}
+.bootTs {
+  font-size: var(--vb-text-min);
+  color: var(--vb-dim);
+  font-variant-numeric: tabular-nums;
+}
+.bootCursor {
+  display: inline-block;
+  width: 6px;
+  height: 11px;
+  background: var(--vb-accent);
+  box-shadow: 0 0 calc(8px * var(--vb-glow)) var(--vb-accent);
+}
+.bootOk {
+  font: 700 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0.12em;
+  color: var(--vb-amber);
+  font-variant-numeric: tabular-nums;
+}
+.bootLine[data-fail] .bootOk {
+  color: var(--vb-danger);
+}
+.bootClock {
+  font-variant-numeric: tabular-nums;
+}
+.bootSkip {
+  position: absolute;
+  right: 32px;
+  bottom: 52px;
+  border: 0;
+  background: none;
+  color: var(--vb-dim);
+  font: 500 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0.12em;
+}
+.bootSkip:hover {
+  color: var(--vb-ink);
+}
+.flex {
+  flex: 1;
+}
+
+/* The designer credit: bottom-left of the boot screen, and the ? overlay's footer next to CLOSE. */
+.bootCredit {
+  position: absolute;
+  left: 32px;
+  bottom: 50px;
+}
+.keysFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.keysFoot .keysClose {
+  align-self: auto;
+}
+
+/* The small FoxBox mark in the boot screen's top edge. */
+.bootMark {
+  flex: none;
+  color: var(--vb-accent);
+  filter: drop-shadow(0 0 calc(6px * var(--vb-glow)) rgba(var(--vb-accent-rgb), 0.6));
+}
+
+/* A failed start: the reason and RETRY / SHOW LOG under the lockup (the Studio never appears half-ready). */
+.bootError {
+  margin-top: clamp(22px, 4vh, 40px);
+  width: min(520px, 42vw);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  pointer-events: auto;
+}
+.bootErrorText {
+  margin: 0;
+  font: 500 13px/1.5 var(--vb-font-mono);
+  color: var(--vb-ink);
+}
+.bootFail {
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--vb-danger);
+}
+.bootActions {
+  display: flex;
+  gap: 10px;
+}
+.bootAction {
+  height: 34px;
+  padding: 0 16px;
+  border: 1px solid var(--vb-line-3);
+  border-radius: var(--vb-r1);
+  background: none;
+  color: var(--vb-ink);
+  font: 700 12px var(--vb-font-mono);
+  letter-spacing: 0.14em;
+}
+.bootAction:hover,
+.bootAction:focus-visible {
+  border-color: var(--vb-accent);
+  color: var(--vb-accent);
+}

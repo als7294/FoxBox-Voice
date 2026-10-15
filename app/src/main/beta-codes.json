@@ -1,0 +1,319 @@
+{
+  "revoked": [
+    "FBV-0051"
+  ],
+  "codes": [
+    {
+      "id": "FBV-0001",
+      "tag": "1ae4",
+      "salt": "Tzr5n9NouIffKFx0iG+qlQ==",
+      "hash": "OX22Le5t1uk2+9+h8LLllM96RJSZMUU4sd9GukcvRDo="
+    },
+    {
+      "id": "FBV-0002",
+      "tag": "5b6b",
+      "salt": "bT4oksG16LL7Avu55RjgxQ==",
+      "hash": "gNEBudqsuntPIqkFuTSlzKalJm4kK/sMwY7QbD6LSUk="
+    },
+    {
+      "id": "FBV-0003",
+      "tag": "d994",
+      "salt": "s7RgGHrJc46XzT7kgJ8GtQ==",
+      "hash": "zbHZlFTJzCtp4hJj06ReEXuHdFXsymn7b+jLIxlHlKs="
+    },
+    {
+      "id": "FBV-0004",
+      "tag": "f265",
+      "salt": "5glYAnzoU+Bkw4uiul/O/g==",
+      "hash": "JNh2KmncqS9s7V5AB8/pjaJRO+eZWdRzigYeM4ERfAs="
+    },
+    {
+      "id": "FBV-0005",
+      "tag": "70fb",
+      "salt": "b8LzsqZ7omNdXE5pCX0EMQ==",
+      "hash": "CRrsZURWeDa6MyYmafKEl09+E39lcVsxHLSPJqmCMgM="
+    },
+    {
+      "id": "FBV-0006",
+      "tag": "dd5c",
+      "salt": "aIYMQpnBTdcXulXdLOotKw==",
+      "hash": "TuwPSc6M85YdGX2FXqm+BoNdbOQ6pQ6z9a6pDfJvXvw="
+    },
+    {
+      "id": "FBV-0007",
+      "tag": "3bf8",
+      "salt": "KGC8ADpKbu7kY28kWSH0Pg==",
+      "hash": "Iw1leXBAgXOmx/oG6FL22c4KHB2HtbfCTgraEw+fwro="
+    },
+    {
+      "id": "FBV-0008",
+      "tag": "2c88",
+      "salt": "3OZygIHbgpQf9d6tsiPztQ==",
+      "hash": "PLrIiWCUq4g5sd8c7bBEze/h6JsFyg4Vx/GstubcnB8="
+    },
+    {
+      "id": "FBV-0009",
+      "tag": "14e7",
+      "salt": "JIGPNcbQuUHDmLSKgC1xvg==",
+      "hash": "b5+4eVUrAal53YCo9GUZ94TPwSKqbt84rGd3YGJNoXc="
+    },
+    {
+      "id": "FBV-0010",
+      "tag": "391c",
+      "salt": "j7fZILAv+u5p7iZI4lY7RA==",
+      "hash": "VuLI+NdSr76Qxh78iANZ9IK76JKKnvgp80htMq7FG1E="
+    },
+    {
+      "id": "FBV-0011",
+      "tag": "2e92",
+      "salt": "Oka5bDKtVPRVI0+4ujRD+w==",
+      "hash": "1pRm/e87Tfm5R4aCJ05giimh/ESDNXksYgDLdoCJRZE="
+    },
+    {
+      "id": "FBV-0012",
+      "tag": "3705",
+      "salt": "m7tyyVoJYgdQWiioDRalag==",
+      "hash": "uF7t/AdQSDPkxT5SNARrfgUSri3t3bElvWbrcMlELbs="
+    },
+    {
+      "id": "FBV-0013",
+      "tag": "d063",
+      "salt": "ZWQG/Xtg3xu7LyhPOIxuCQ==",
+      "hash": "W3s0Y0TmqYnn9LWZaX6N+aTUUrg+ThmR0pMeqqX5KIM="
+    },
+    {
+      "id": "FBV-0014",
+      "tag": "5eae",
+      "salt": "Xr6ewu1IrCrRfITXOZw+/Q==",
+      "hash": "wM9RzW+sOBMpj1n8RY2wLr3HAD+56PxqTcyoQeBBT/U="
+    },
+    {
+      "id": "FBV-0015",
+      "tag": "036b",
+      "salt": "bk/ZcB+Q5aaA3VcJ3EA68A==",
+      "hash": "yFt9ZApc4eGb/ihfdgdwsHyrZwM3eqTNlza8Ba0Rlrs="
+    },
+    {
+      "id": "FBV-0016",
+      "tag": "1475",
+      "salt": "lUsSV9RsQpoX7XQby6jkag==",
+      "hash": "Q/n7t/WZXjfqg71IOsG286t+IzEmvHEZeOIWncCDqJE="
+    },
+    {
+      "id": "FBV-0017",
+      "tag": "06ad",
+      "salt": "ljhDgABVPqPqUay7woO+Lg==",
+      "hash": "9/gse5AfOlmAsS+GWxFUf4BdJxKuJtXgUM0ke0e31fM="
+    },
+    {
+      "id": "FBV-0018",
+      "tag": "8cb7",
+      "salt": "5JXGOODephN16ktW2v51wQ==",
+      "hash": "OH7h+CZr5QKH0yGehmMhXu4pnASnFYz8phvvNUOTB9k="
+    },
+    {
+      "id": "FBV-0019",
+      "tag": "c2e8",
+      "salt": "ph5QEteXIagAdPZ8iKyKAQ==",
+      "hash": "aXamN71e9dWgQpD4F+WtmAV2UgPy9Ym9Sw6c0niXAOQ="
+    },
+    {
+      "id": "FBV-0020",
+      "tag": "dc6e",
+      "salt": "qoYy0VCPUCyUqNldraaqNw==",
+      "hash": "/419SI+yI5mbCBH92zGtAQJz8yFoJOx8n9WyemJ1hBU="
+    },
+    {
+      "id": "FBV-0021",
+      "tag": "1689",
+      "salt": "zFRsxwe5+oU1WfXh33rFIQ==",
+      "hash": "1FxyhGKDpC00PYUjC79UmvIb1SfOwcET0HfXva6Xc04="
+    },
+    {
+      "id": "FBV-0022",
+      "tag": "b4f2",
+      "salt": "OtXlnDpTSnx+AL/fbbUucg==",
+      "hash": "cl/I9xSlOpRg3oxoUDPH6A7Efb2Z9p+9qDCjCYufbhM="
+    },
+    {
+      "id": "FBV-0023",
+      "tag": "3a80",
+      "salt": "RFYXOFsPEXzMBW2yp3kU/w==",
+      "hash": "p3aFUJhuPxGn/x2a5UVypPMKO5pCapuwnYH8oykHA/U="
+    },
+    {
+      "id": "FBV-0024",
+      "tag": "9fb5",
+      "salt": "tYdG2Q+WaETiNRrAMQA1HQ==",
+      "hash": "YBLwZnDO8Ny4TuYFIhJRg7tg6ooKDhyZk/nDy8WXVjM="
+    },
+    {
+      "id": "FBV-0025",
+      "tag": "964a",
+      "salt": "cSPLHnI28/5Af9/x1FLsnA==",
+      "hash": "9j4hUpIO2BH28ncA/yrm/rfnRQg3zEE3rS8JaCbzqBg="
+    },
+    {
+      "id": "FBV-0026",
+      "tag": "468a",
+      "salt": "uvaivEwIrZfRHN2h4ICJWQ==",
+      "hash": "C2mYUE+1PALzT+1Ts1dUnqD4vye/HuVnxlvjF3TmI6g="
+    },
+    {
+      "id": "FBV-0027",
+      "tag": "1db5",
+      "salt": "ADITFoeKZnNc4fyUaUk7pg==",
+      "hash": "Ln+eXUvA2asM1aRWmxfanoz49AhMd5M7QlBPzKZsKPU="
+    },
+    {
+      "id": "FBV-0028",
+      "tag": "85f0",
+      "salt": "3qJb5FUzS8oglJNcjYx6Cg==",
+      "hash": "2/sW/HFUOkpKJJ1zTs/p+06FeV9yPE450r6BPIGGUbQ="
+    },
+    {
+      "id": "FBV-0029",
+      "tag": "561a",
+      "salt": "VxUQDVajJJYunKdI3ZeWoA==",
+      "hash": "R72aHFJap6tvTsoB8DMUuXDngwPY6d3lreWuY/coXws="
+    },
+    {
+      "id": "FBV-0030",
+      "tag": "4cd1",
+      "salt": "sywYRqgdHOCGK4Na6+XD/g==",
+      "hash": "vDfs2CMmhPxu7clYKO6QQaNjtTalqQkBo+/KeM5cojM="
+    },
+    {
+      "id": "FBV-0031",
+      "tag": "7339",
+      "salt": "NRiMNa+r/ffcmQVioVhR5w==",
+      "hash": "EnFjtPS3nASB5xUnXDqegzcymucUabDR3fndaTDDhZw="
+    },
+    {
+      "id": "FBV-0032",
+      "tag": "5908",
+      "salt": "AHxuEW5+iC0mfo76N5Ntcg==",
+      "hash": "LkkEpARKp0Vvr7jYxhln291ip0mW2C+2qvDwOpX06M4="
+    },
+    {
+      "id": "FBV-0033",
+      "tag": "cb17",
+      "salt": "luz3HIH7nFSFn4RZyx5tFg==",
+      "hash": "NCLSKu8CQaykUu47W5CO7CGatQMgBjW0fAZJUPrDGCI="
+    },
+    {
+      "id": "FBV-0034",
+      "tag": "4b89",
+      "salt": "x8jqm6Mq7JYtjkgfFagN4w==",
+      "hash": "xoAgkQrkZWbmq4pFwqPdibWRu+/Y7wB5AHvppY9VShY="
+    },
+    {
+      "id": "FBV-0035",
+      "tag": "279b",
+      "salt": "MbA5fdjHCxoxqtgCzJhRRQ==",
+      "hash": "WjiPxA9CCluWt3EbFl1RtjSVH2fGE5WtE1ySZ23976w="
+    },
+    {
+      "id": "FBV-0036",
+      "tag": "de60",
+      "salt": "n9NqDJ/5Qyi6Nqj113YkEA==",
+      "hash": "RaTTmDr5oYZLyr8mCiFIloR/AkQeiaNShD9gYbwjxCY="
+    },
+    {
+      "id": "FBV-0037",
+      "tag": "f8c6",
+      "salt": "EjN7dG7ntqITyH63BX/haA==",
+      "hash": "486P9y55G24ydP/bHPrc+Fj2LaqkaqiiM+U4BUB8AgY="
+    },
+    {
+      "id": "FBV-0038",
+      "tag": "0b0c",
+      "salt": "8dh3gSpgEI49HT3ycwrJEQ==",
+      "hash": "OLrmRif3Fo0UmpuqNeXg8VNQsqoeW55urNIIUneMERk="
+    },
+    {
+      "id": "FBV-0039",
+      "tag": "d5b3",
+      "salt": "0HmpwF9LtshWkh8XvQOVOg==",
+      "hash": "0LB5Dm7L6qUuLFjduQYUFBdp9h/I0M3jHR3P0fFdtHw="
+    },
+    {
+      "id": "FBV-0040",
+      "tag": "e327",
+      "salt": "ry8GDLNIB8gChXk3y4qugQ==",
+      "hash": "SEO+eyWfc/nKzxs3Om1s8/zU60O6sSX5i7XT9B9Osa0="
+    },
+    {
+      "id": "FBV-0041",
+      "tag": "fd50",
+      "salt": "nIRe302La/6wIUOx68aoCQ==",
+      "hash": "XTf7xTLAWuFi9zp9H+qzLOgYy+f/7DYfLKm6f1q6fGM="
+    },
+    {
+      "id": "FBV-0042",
+      "tag": "fe22",
+      "salt": "7dTQ8HlwDJPInyQgF/02FA==",
+      "hash": "nFrexZrcGDxKuB84KWaclKOcHYPtjU4q614YP5xiTWI="
+    },
+    {
+      "id": "FBV-0043",
+      "tag": "154c",
+      "salt": "hTt/Va3K3fMrKoB27f9TdQ==",
+      "hash": "O/So1uOKVEo+RSCsItqVNRWnV3sKeavTTzaLkURAn80="
+    },
+    {
+      "id": "FBV-0044",
+      "tag": "b2db",
+      "salt": "wKb4UCWdtH67dDl948aMeA==",
+      "hash": "pexmHADG7admYRsz2fPrHAm6TA7+VRP3qPiCgGN2sqQ="
+    },
+    {
+      "id": "FBV-0045",
+      "tag": "ce69",
+      "salt": "n5e8QXyahyyGYKugGrqPww==",
+      "hash": "v0Xhles3OL74OcB9Ts15E6xvntyGJUMBo/IycoVeHMU="
+    },
+    {
+      "id": "FBV-0046",
+      "tag": "df58",
+      "salt": "6sg87pLc8kr2k4qM+dlAwQ==",
+      "hash": "8hOnfAT9osflwYCnm0DH5adMLzihwlYOnGwJrHOv/lE="
+    },
+    {
+      "id": "FBV-0047",
+      "tag": "9719",
+      "salt": "MlfcyfZ377wvFieUequFzw==",
+      "hash": "gjfcA6cG2VIk9rrFFqZW+qCNCSIRpQJBwhOlyBFHBnY="
+    },
+    {
+      "id": "FBV-0048",
+      "tag": "c7c2",
+      "salt": "VuAhrTMm4ugmDG428SsPug==",
+      "hash": "eMj50SRStU5EL5pSlzzuNsDfNybzSmdXrYGys6+OsE8="
+    },
+    {
+      "id": "FBV-0049",
+      "tag": "b170",
+      "salt": "lC1IvqvsZO4EiVf8u79HeQ==",
+      "hash": "oz07wyR1BrPL/YrIVvbmFeGtMkAhUgXP2PqScxvyv6E="
+    },
+    {
+      "id": "FBV-0050",
+      "tag": "8d24",
+      "salt": "hsnaKC3btjmJO+ZmHx9cbA==",
+      "hash": "nYyT54/V46yRla/eibFglAN0SRju6xgKRU0Eo31gPJQ="
+    },
+    {
+      "id": "FBV-0051",
+      "tag": "9813",
+      "salt": "RYIqgxuLBh+aGOGHScOjdw==",
+      "hash": "hZhLYHx8FJmmWHf3Ju3Zecp2oEXNLwqre8w6cmn5wHY="
+    },
+    {
+      "id": "FBV-0052",
+      "tag": "a096",
+      "salt": "Y/oHdyv+Ft5/Nd2a50mb1A==",
+      "hash": "CAG05MdvJcTq/Eox1Wp2mFkwiJ83U01l+UrirRmPaL4="
+    }
+  ]
+}

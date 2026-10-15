@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 802 100" role="img" aria-label="FoxBox" fill="#f25a1d">
+  <title>FoxBox</title>
+  <!-- FOXBOX wordmark: extended geometric caps on a 100-unit cap height (8:1). Verticals 24, horizontals 19.
+       The O is the fox's sunglass lens: flat top, rounded bottom. Colour follows `color` (currentColor).
+       Clear space: 0.5 cap height on every side. Smallest size: 80 px wide. -->
+  <path d="M0 0H86V19H24V40H72V58H24V100H0Z"/>
+  <path fill-rule="evenodd" transform="translate(90 0)" d="M18 0H132A18 18 0 0 1 150 18V54A46 46 0 0 1 104 100H46A46 46 0 0 1 0 54V18A18 18 0 0 1 18 0ZM31 19H119A7 7 0 0 1 126 26V54A22 27 0 0 1 104 81H46A22 27 0 0 1 24 54V26A7 7 0 0 1 31 19Z"/>
+  <path transform="translate(252 0)" d="M0 0H33L124 100H91ZM91 0H124L33 100H0Z"/>
+  <path fill-rule="evenodd" transform="translate(390 0)" d="M0 0H82A20 20 0 0 1 102 20V34A6 6 0 0 1 96 40A16 16 0 0 1 112 56V76A24 24 0 0 1 88 100H0ZM24 19H72A6 6 0 0 1 78 25V34A6 6 0 0 1 72 40H24ZM24 58H80A8 8 0 0 1 88 66V73A8 8 0 0 1 80 81H24Z"/>
+  <path fill-rule="evenodd" transform="translate(516 0)" d="M18 0H132A18 18 0 0 1 150 18V54A46 46 0 0 1 104 100H46A46 46 0 0 1 0 54V18A18 18 0 0 1 18 0ZM31 19H119A7 7 0 0 1 126 26V54A22 27 0 0 1 104 81H46A22 27 0 0 1 24 54V26A7 7 0 0 1 31 19Z"/>
+  <path transform="translate(678 0)" d="M0 0H33L124 100H91ZM91 0H124L33 100H0Z"/>
+</svg>

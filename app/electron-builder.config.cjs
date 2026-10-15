@@ -1,0 +1,69 @@
+// electron-builder config (used by scripts/package.mjs): release/mac-arm64/FoxBox Voice.app, and with --dmg
+// release/FoxBox-Voice-<version>-arm64.dmg (the note in build-resources/ rides along in the disk image).
+const { join } = require('node:path')
+
+const electronFuses = {
+  runAsNode: false,
+  enableCookieEncryption: true,
+  enableNodeOptionsEnvironmentVariable: false,
+  enableNodeCliInspectArguments: false,
+  enableEmbeddedAsarIntegrityValidation: true,
+  onlyLoadAppFromAsar: true,
+}
+
+/** @type {import('electron-builder').Configuration} */
+module.exports = {
+  appId: 'com.smittytech.foxbox.voice',
+  productName: 'FoxBox Voice',
+  copyright: 'GUY FVWKS',
+  directories: { output: 'release', buildResources: 'build-resources' },
+  // Everything is bundled by electron-vite (main and preload import only node: and electron); no runtime node_modules
+  // ship. electron-builder adds `dependencies` on its own, so they're excluded explicitly (app.asar 113 → 33 MB).
+  files: ['out/**', 'package.json', '!out/**/*.map', '!**/node_modules/**'],
+  asar: true,
+  npmRebuild: false,
+  electronFuses,
+  // Component updates (1.2): record each part's hash in Contents/Resources/components.json before signing
+  // (src/main/components.ts). The fuses are applied after this hook, so they go into the electron part's hash.
+  afterPack: async (context) => {
+    const { hashComponents, writeComponentsFile } = await import('./src/main/components.ts')
+    const app = join(context.appOutDir, `${context.packager.appInfo.productFilename}.app`)
+    const electron = require('electron/package.json').version
+    const hashes = hashComponents(app, { electron: JSON.stringify({ electron, electronFuses }) })
+    writeComponentsFile(app, hashes)
+    console.log(`  • components  ${Object.entries(hashes).map(([n, h]) => `${n}=${h.slice(0, 12)}`).join('  ')}`)
+  },
+  mac: {
+    target: [{ target: 'dir', arch: ['arm64'] }],
+    artifactName: 'FoxBox-Voice-${version}-${arch}.${ext}',
+    category: 'public.app-category.music',
+    // The app icon (design/brand/voice/fbv-icon-1024.png, built into an .icns with iconutil; a placeholder until the art lands).
+    icon: 'build-resources/icon.icns',
+    // Ad-hoc signature (no Developer ID). Hardened runtime would reject Electron's pre-signed frameworks.
+    identity: '-',
+    hardenedRuntime: false,
+    gatekeeperAssess: false,
+    darkModeSupport: true,
+    extendInfo: {
+      NSMicrophoneUsageDescription:
+        'FoxBox Voice records your voice so it can be masked. The audio stays on this Mac.',
+      // The engine's wheels (mlx, mlx-metal, numpy, scipy) are macosx_14_0_arm64: macOS 14 on Apple silicon only.
+      LSMinimumSystemVersion: '14.0',
+    },
+  },
+  // The branded install window (design/brand/voice/dmg-background*.png as one HiDPI TIFF, built with tiffutil): the app and
+  // the Applications link sit on the art's dashed slots; the first-open steps are printed on it, so the note file
+  // sits below the visible window for anyone who scrolls.
+  dmg: {
+    title: '${productName} ${version} (beta)',
+    icon: 'build-resources/icon.icns',
+    background: 'build-resources/dmg-background.tiff',
+    window: { width: 660, height: 420 },
+    iconSize: 128,
+    contents: [
+      { x: 180, y: 205, type: 'file' },
+      { x: 480, y: 205, type: 'link', path: '/Applications' },
+      { x: 330, y: 560, type: 'file', path: join(__dirname, 'build-resources', 'Open FoxBox Voice.txt') },
+    ],
+  },
+}

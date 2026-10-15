@@ -1,0 +1,558 @@
+/* Shell: 56px top bar over the page (no rail), container queries for the 1280px layout. */
+.shell {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-width: 1280px;
+  min-height: 800px;
+  container-type: size;
+  container-name: vb;
+  overflow: hidden;
+  background: var(--vb-bg);
+  color: var(--vb-ink);
+  font-family: var(--vb-font-mono);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: var(--vb-top-h) minmax(0, 1fr);
+}
+.flex {
+  flex: 1;
+}
+@container vb (max-width: 1419px) {
+  .wideOnly {
+    display: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------- top bar */
+.top {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 0.8cqw, 12px);
+  padding: 0 14px 0 0;
+  border-bottom: 1px solid var(--vb-line);
+  background: var(--vb-chrome);
+  -webkit-app-region: drag;
+  min-width: 0;
+}
+.top > * {
+  -webkit-app-region: no-drag;
+}
+.top > .lights,
+.top > .brand,
+.top > .flex {
+  -webkit-app-region: drag;
+}
+.lights {
+  width: var(--vb-rail-w);
+  height: 100%;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-right: 1px solid rgba(var(--vb-ink-rgb), 0.06);
+}
+.lights span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--vb-raise);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 6px;
+  flex: none;
+}
+.mark {
+  flex: none;
+  color: var(--vb-accent);
+}
+.lockup {
+  display: block;
+  height: 18px;
+  width: auto;
+}
+
+.brandSub {
+  font: 500 var(--vb-text-min)/1 var(--vb-font-mono);
+  letter-spacing: 0.12em;
+  color: var(--vb-dim);
+}
+.engine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  padding: 0 11px;
+  border: 1px solid rgba(var(--vb-ink-rgb), 0.12);
+  border-radius: var(--vb-r2);
+  font: 500 var(--vb-text-min)/1 var(--vb-font-mono);
+  letter-spacing: 0.12em;
+  margin-left: 6px;
+  white-space: nowrap;
+  flex: none;
+}
+.engineDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  --dot: var(--vb-ok);
+  background: var(--dot);
+  box-shadow: 0 0 calc(8px * var(--vb-glow)) var(--dot);
+  animation: breathe 1.9s ease-in-out infinite;
+}
+.engine[data-tone='busy'] .engineDot {
+  --dot: var(--vb-amber);
+  animation: blink 0.28s steps(1) infinite;
+}
+.engine[data-tone='off'] .engineDot {
+  --dot: var(--vb-danger);
+  animation: blink 0.28s steps(1) infinite;
+}
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.boxLabel {
+  font: 500 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0.12em;
+  color: var(--vb-dim);
+  white-space: nowrap;
+}
+.tempo {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  border: 1px solid var(--vb-line-2);
+  border-radius: var(--vb-r2);
+  flex: none;
+}
+.tempo > .boxLabel {
+  padding: 0 4px 0 10px;
+}
+.bpmInput {
+  width: 50px;
+  background: none;
+  border: 0;
+  color: var(--vb-ink);
+  font: 700 21px/1 var(--vb-font-display);
+  text-align: center;
+  outline: none;
+  padding: 0;
+}
+.tempo:focus-within {
+  border-color: var(--vb-amber-line);
+}
+.leds {
+  display: flex;
+  gap: 3px;
+  padding: 0 8px;
+}
+.leds span {
+  width: 5px;
+  height: 5px;
+  background: rgba(var(--vb-ink-rgb), 0.18);
+}
+.leds span[data-on='down'] {
+  background: var(--vb-accent);
+  box-shadow: 0 0 calc(8px * var(--vb-glow)) var(--vb-accent);
+}
+.leds span[data-on='beat'] {
+  background: var(--vb-amber);
+  box-shadow: 0 0 calc(8px * var(--vb-glow)) var(--vb-amber);
+}
+.tap {
+  height: 100%;
+  padding: 0 12px;
+  border: 0;
+  border-left: 1px solid var(--vb-line-2);
+  background: none;
+  color: var(--vb-ink);
+  font: 700 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0.12em;
+}
+.tap:hover {
+  background: var(--vb-fill-2);
+}
+.keyBox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--vb-line-2);
+  border-radius: var(--vb-r2);
+  flex: none;
+}
+.keySelect {
+  align-self: stretch;
+  background: none;
+  border: 0;
+  color: var(--vb-ink);
+  font: 700 17px/1 var(--vb-font-display);
+  letter-spacing: 0.04em;
+  appearance: none;
+  cursor: pointer;
+  outline: none;
+}
+.keySelect option {
+  background: var(--vb-panel);
+  color: var(--vb-ink);
+  font-family: var(--vb-font-mono);
+}
+.bars {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  border: 1px solid var(--vb-line-2);
+  border-radius: var(--vb-r2);
+  padding: 3px;
+  gap: 2px;
+  flex: none;
+}
+.bars > .boxLabel {
+  padding: 0 6px;
+}
+.barBtn {
+  height: 100%;
+  min-width: clamp(26px, 2.1cqw, 30px);
+  padding: 0 7px;
+  border: 0;
+  border-radius: var(--vb-r1);
+  background: transparent;
+  color: var(--vb-dim);
+  font: 700 11px var(--vb-font-mono);
+  transition: background var(--vb-fast);
+}
+.barBtn[aria-checked='true'] {
+  background: var(--vb-ink);
+  color: var(--vb-bg);
+}
+.chip {
+  height: 36px;
+  padding: 0 11px;
+  border: 1px solid var(--vb-line-2);
+  border-radius: var(--vb-r2);
+  background: none;
+  color: var(--vb-ink);
+  font: 500 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  flex: none;
+}
+.loud {
+  height: 36px;
+  padding: 0 11px;
+  border: 1px solid rgba(var(--vb-amber-rgb), 0.4);
+  border-radius: var(--vb-r2);
+  background: none;
+  color: var(--vb-amber);
+  font: 700 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0.12em;
+  flex: none;
+}
+.render {
+  position: relative;
+  overflow: hidden;
+  height: 38px;
+  min-width: clamp(124px, 10.4cqw, 158px);
+  padding: 0 16px;
+  background: var(--vb-accent);
+  color: var(--vb-bg);
+  border: 0;
+  border-radius: var(--vb-r2);
+  font: var(--vb-display-weight) 17px/1 var(--vb-font-display);
+  letter-spacing: 0.16em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: var(--vb-accent-glow);
+  transition: box-shadow var(--vb-fast);
+  flex: none;
+}
+.render:hover {
+  box-shadow: 0 0 30px rgba(var(--vb-accent-rgb), calc(0.5 * var(--vb-glow)));
+}
+.render:disabled {
+  opacity: 1;
+  cursor: progress;
+}
+.renderKey {
+  font: 500 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0;
+}
+/* The top bar's extras (the format chip, the ⌘↩ hint, the fox mark) show only when all of it fits. */
+@container vb (max-width: 1559px) {
+  .renderKey,
+  .topWide,
+  .brand .mark {
+    display: none;
+  }
+}
+.iconChip {
+  width: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vb-dim);
+}
+.iconChip:hover,
+.iconChip[aria-pressed='true'] {
+  color: var(--vb-accent);
+}
+.renderProg {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  background: var(--vb-bg);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+/* ---------------------------------------------------------------- main */
+.main {
+  grid-column: 1;
+  grid-row: 2;
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+}
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  background: var(--vb-scanlines);
+}
+
+/* ---------------------------------------------------------------- source panel (SourceTabs) */
+.source {
+  grid-row: 1 / 3;
+  grid-column: 1;
+  background: var(--vb-panel);
+  border: 1px solid var(--vb-line);
+  border-radius: var(--vb-r3);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.panelHead {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  flex: none;
+  padding-left: 16px;
+  border-bottom: 1px solid var(--vb-line);
+}
+.panelTitle {
+  font: 700 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0.12em;
+  color: var(--vb-dim);
+}
+.tabs {
+  display: flex;
+  height: 100%;
+}
+/* Takes are recorded on VISUALS: the way there, at the end of the SOURCE tabs. */
+/* A way to VISUALS (where takes are recorded), not a record button: a quiet link, not a red pill (UX #3). */
+.tab {
+  position: relative;
+  height: 100%;
+  padding: 0 14px;
+  background: none;
+  border: 0;
+  color: var(--vb-dim);
+  font: 700 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0.12em;
+}
+.tab[aria-selected='true'] {
+  color: var(--vb-ink);
+}
+.tab::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -1px;
+  height: 2px;
+  background: transparent;
+}
+.tab[aria-selected='true']::after {
+  background: var(--vb-accent);
+  box-shadow: 0 0 calc(8px * var(--vb-glow)) var(--vb-accent);
+}
+.tabPanel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.typeBody {
+  flex: 1;
+  min-height: 0;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 2cqh, 20px);
+}
+
+/* ---------------------------------------------------------------- non-Studio screens */
+.screen {
+  position: absolute;
+  inset: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+.screenHead {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  height: 56px;
+  flex: none;
+  min-width: 0;
+}
+.screenHead[data-compact] {
+  height: 34px;
+  align-items: center;
+}
+.screenTitleBox {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: none;
+}
+.screenKicker {
+  font: 500 var(--vb-text-min) var(--vb-font-mono);
+  letter-spacing: 0.12em;
+  color: var(--vb-dim);
+}
+.screenTitle {
+  font: var(--vb-display-weight) 44px/0.85 var(--vb-font-display);
+  letter-spacing: 0.06em;
+}
+.panel {
+  background: var(--vb-panel);
+  border: 1px solid var(--vb-line);
+  border-radius: var(--vb-r3);
+  min-height: 0;
+  min-width: 0;
+}
+/* AUTO · 4: the count AUTO picked (hidden when the top bar is tight). */
+.barResolved {
+  opacity: 0.7;
+}
+@container vb (max-width: 1419px) {
+  .barResolved {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------- update bar (components/updates/UpdateBanner) */
+/* While it shows, the shell gets a 34 px row for it under the top bar; the screen takes the rest. */
+.shell:has(> [data-update-bar]) {
+  grid-template-rows: var(--vb-top-h) auto minmax(0, 1fr);
+}
+.shell:has(> [data-update-bar]) > .main {
+  grid-row: 3;
+}
+
+/* ---------------------------------------------------------------- 1.2.3 glass (tokens.css): top-bar controls */
+.engine,
+.tempo,
+.keyBox,
+.bars,
+.chip {
+  background: var(--vb-glass-fill);
+  backdrop-filter: var(--vb-glass-blur);
+  border: 1px solid var(--vb-glass-edge);
+  border-top-color: var(--vb-glass-edge-top);
+  box-shadow: var(--vb-glass-inner), var(--vb-glass-shadow);
+  border-radius: var(--vb-glass-radius);
+  corner-shape: var(--vb-glass-corner);
+}
+.tempo {
+  overflow: hidden; /* TAP's hover fill follows the rounded corner */
+}
+.chip:hover,
+.tap:hover {
+  background: var(--vb-glass-fill-hi);
+}
+.barBtn {
+  border-radius: calc(var(--vb-glass-radius) - 3px);
+  corner-shape: var(--vb-glass-corner);
+}
+.barBtn[aria-checked='true'] {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 1px 4px rgba(var(--vb-shadow-rgb), 0.45);
+}
+.loud {
+  background: linear-gradient(180deg, rgba(var(--vb-amber-rgb), 0.14), rgba(var(--vb-amber-rgb), 0.04));
+  backdrop-filter: var(--vb-glass-blur);
+  border-color: rgba(var(--vb-amber-rgb), 0.35);
+  border-top-color: rgba(var(--vb-amber-rgb), 0.62);
+  box-shadow: var(--vb-glass-inner), var(--vb-glass-shadow);
+  border-radius: var(--vb-glass-radius);
+  corner-shape: var(--vb-glass-corner);
+}
+/* RENDER: the one glossy accent in the bar (dark label on ember stays AA) */
+.render {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--vb-accent) 80%, #fff) 0%,
+    var(--vb-accent) 48%,
+    color-mix(in srgb, var(--vb-accent) 88%, #000) 100%
+  );
+  border-radius: var(--vb-glass-radius);
+  corner-shape: var(--vb-glass-corner);
+  box-shadow:
+    var(--vb-accent-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -2px 6px rgba(var(--vb-shadow-rgb), 0.22);
+}
+.render:hover {
+  box-shadow:
+    0 0 30px rgba(var(--vb-accent-rgb), calc(0.5 * var(--vb-glow))),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -2px 6px rgba(var(--vb-shadow-rgb), 0.22);
+}
+/* Off the Studio: an outline, so each screen keeps a single filled primary (UX #13). */
+.render[data-quiet] {
+  background: none;
+  color: var(--vb-accent);
+  box-shadow: inset 0 0 0 1px rgba(var(--vb-accent-rgb), 0.55);
+}
+.render[data-quiet]:hover {
+  background: rgba(var(--vb-accent-rgb), 0.12);
+  box-shadow: inset 0 0 0 1px var(--vb-accent);
+}
+.render[data-quiet] .renderProg {
+  background: var(--vb-accent);
+}
+

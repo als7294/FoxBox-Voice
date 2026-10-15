@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <title>FoxBox Voice (placeholder)</title>
+  <defs><linearGradient id="fbv-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#070b14"/><stop offset="1" stop-color="#1d3b5c"/></linearGradient></defs>
+  <rect width="1024" height="1024" rx="228" fill="url(#fbv-sky)"/>
+  <rect x="24" y="24" width="976" height="976" rx="206" fill="none" stroke="#5ce6cf" stroke-opacity=".55" stroke-width="4"/>
+  <svg x="100" y="112" width="824" height="824" viewBox="0 0 512 512" color="#eef5fc">
+    <defs>
+      <mask id="fi-cut">
+        <rect width="512" height="512" fill="#fff"/>
+        <path d="M112 104 L196 190 L130 222 Z" fill="#000"/>
+        <path d="M400 104 L316 190 L382 222 Z" fill="#000"/>
+        <path d="M140 250 L248 290 L226 330 L176 306 Z" fill="#000"/>
+        <path d="M372 250 L264 290 L286 330 L336 306 Z" fill="#000"/>
+        <path d="M56 298 L256 410 L456 298" fill="none" stroke="#000" stroke-width="28" stroke-linejoin="miter"/>
+      </mask>
+    </defs>
+    <path mask="url(#fi-cut)" fill="currentColor" d="M96 56 L204 172 L308 172 L416 56 L452 296 L256 470 L60 296 Z"/>
+  </svg>
+</svg>

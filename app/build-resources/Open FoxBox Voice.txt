@@ -1,0 +1,16 @@
+FOXBOX VOICE (BETA): first open
+
+1. Drag FoxBox Voice into Applications (the folder beside it), then open it from Applications.
+
+2. FoxBox Voice isn't from the App Store, so macOS stops it the first time:
+   - macOS 15 Sequoia or later: open FoxBox Voice once and click Done, then go to
+     System Settings > Privacy & Security, scroll down and click "Open Anyway" next to FoxBox Voice.
+   - macOS 14 Sonoma: right-click FoxBox Voice > Open > Open.
+   You only do this once.
+
+3. Enter your beta invite code (FBV-XXXX-XXXX-XXXX). Each code is for one Mac.
+
+4. The first launch downloads the voice model (about 0.4 GB) and needs about 2 GB free.
+
+Beta. Mac only: needs Apple silicon (M1 or later) and macOS 14 Sonoma or later.
+FoxBox Voice installs beside FoxBox and keeps its own settings, exports and updates.

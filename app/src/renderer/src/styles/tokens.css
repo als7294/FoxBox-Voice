@@ -1,0 +1,136 @@
+/*
+ * FoxBox Voice design tokens: ARCTIC (the arctic fox), a cool sibling of FoxBox's warm TRANSMISSION.
+ * Deep night navy surfaces, snow-white ink, pale-silver secondary text, ice blue, and one aurora accent (teal).
+ * --vb-amber keeps its role (warnings, meters, focus) in the fox's pale gold. Every text colour here is AA (≥ 7:1)
+ * on every surface. Canvas drawings read these same custom properties (src/visuals/theme.ts).
+ */
+:root {
+  color-scheme: dark;
+  --vb-bg: #070b14;
+  --vb-panel: #0c1322;
+  --vb-chrome: #091020;
+  --vb-raise: #142036;
+  --vb-card: #101a2c;
+  --vb-well: #060a12;
+  --vb-well-deep: #04070d;
+  --vb-knob: #12203a;
+  --vb-ink: #eef5fc;
+  --vb-dim: #9aabc2;
+  --vb-accent: #5ce6cf;
+  --vb-amber: #f3d37c;
+  --vb-ice: #8ccfff;
+  --vb-ok: #86e3b4;
+  --vb-danger: #ff7a8a;
+  --vb-ink-rgb: 238, 245, 252;
+  --vb-panel-rgb: 12, 19, 34;
+  --vb-accent-rgb: 92, 230, 207;
+  --vb-amber-rgb: 243, 211, 124;
+  --vb-ok-rgb: 134, 227, 180;
+  --vb-danger-rgb: 255, 122, 138;
+  --vb-shadow-rgb: 1, 3, 10;
+  /* full-screen layers (boot, WHAT'S NEW) and the dimmer behind dialogs */
+  --vb-night: #04070e;
+  --vb-overlay: rgba(4, 7, 14, 0.8);
+  --vb-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --vb-font-display: 'Big Shoulders Display', sans-serif;
+  --vb-display-weight: 800;
+  --vb-glow: 1;
+  --vb-scanlines: repeating-linear-gradient(0deg, rgba(var(--vb-ink-rgb), 0.012) 0 1px, transparent 1px 3px);
+}
+
+:root {
+  /*
+   * 1.2.3 glass: a little Apple-style liquid glass on the ARCTIC dark, for controls, chips, tabs, cards and
+   * popovers only (never whole panels). Blur costs GPU per pixel: use --vb-glass-blur on small surfaces. Text on
+   * glass stays --vb-ink / --vb-dim (AA on these fills). Recipe:
+   *   background: var(--vb-glass-fill);            (hover: --vb-glass-fill-hi)
+   *   backdrop-filter: var(--vb-glass-blur);       (small elements)
+   *   border: 1px solid var(--vb-glass-edge); border-top-color: var(--vb-glass-edge-top);   (top-lit hairline)
+   *   box-shadow: var(--vb-glass-inner), var(--vb-glass-shadow);                            (highlight + depth)
+   *   border-radius: var(--vb-glass-radius); corner-shape: var(--vb-glass-corner);        (continuous corners)
+   */
+  --vb-glass-fill: linear-gradient(180deg, rgba(var(--vb-ink-rgb), 0.075), rgba(var(--vb-ink-rgb), 0.025));
+  --vb-glass-fill-hi: linear-gradient(180deg, rgba(var(--vb-ink-rgb), 0.12), rgba(var(--vb-ink-rgb), 0.045));
+  --vb-glass-blur: blur(12px) saturate(150%);
+  --vb-glass-edge: rgba(var(--vb-ink-rgb), 0.12);
+  --vb-glass-edge-top: rgba(var(--vb-ink-rgb), 0.26);
+  --vb-glass-inner: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -10px 18px -14px rgba(var(--vb-shadow-rgb), 0.7);
+  --vb-glass-shadow: 0 4px 14px rgba(var(--vb-shadow-rgb), 0.35);
+  --vb-glass-radius: 9px;
+  --vb-glass-radius-lg: 12px;
+  --vb-glass-corner: squircle;
+
+  /* derived lines and fills */
+  --vb-line: rgba(var(--vb-ink-rgb), 0.08);
+  --vb-line-soft: rgba(var(--vb-ink-rgb), 0.05);
+  --vb-line-2: rgba(var(--vb-ink-rgb), 0.14);
+  --vb-line-3: rgba(var(--vb-ink-rgb), 0.2);
+  --vb-fill-1: rgba(var(--vb-ink-rgb), 0.03);
+  --vb-fill-2: rgba(var(--vb-ink-rgb), 0.06);
+  --vb-amber-line: rgba(var(--vb-amber-rgb), 0.45);
+  --vb-accent-glow: 0 0 22px rgba(var(--vb-accent-rgb), calc(0.28 * var(--vb-glow)));
+  --vb-pop: 0 20px 50px rgba(var(--vb-shadow-rgb), 0.7);
+
+  /* radii */
+  --vb-r1: 2px;
+  --vb-r2: 3px;
+  --vb-r3: 4px;
+
+  /* motion */
+  --vb-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --vb-ease-io: cubic-bezier(0.7, 0, 0.2, 1);
+  --vb-fast: 0.15s;
+  --vb-med: 0.3s;
+  --vb-slow: 0.55s;
+
+  /* layout */
+  --vb-rail-w: 76px;
+  --vb-top-h: 56px;
+  --vb-gap: 12px;
+
+  /* Phase 1 token names, kept as aliases so every component reads the design values. */
+  --color-bg: var(--vb-bg);
+  --color-surface: var(--vb-panel);
+  --color-surface-2: var(--vb-raise);
+  --color-surface-3: var(--vb-raise);
+  --color-border: var(--vb-line);
+  --color-border-strong: var(--vb-line-3);
+  --color-text: var(--vb-ink);
+  --color-text-muted: var(--vb-dim);
+  --color-text-faint: var(--vb-dim);
+  --color-accent: var(--vb-accent);
+  --color-accent-strong: var(--vb-accent);
+  --color-accent-contrast: var(--vb-bg);
+  --color-meter: var(--vb-amber);
+  --color-ok: var(--vb-ok);
+  --color-warn: var(--vb-amber);
+  --color-danger: var(--vb-danger);
+  --color-focus: var(--vb-amber);
+  --color-overlay: var(--vb-overlay);
+  --font-ui: var(--vb-font-mono);
+  --font-mono: var(--vb-font-mono);
+  --font-display: var(--vb-font-display);
+  /* The smallest text anywhere (S5 #4): labels below this can't be read at arm's length in a dark room. Tune here. */
+  --vb-text-min: 11px;
+  --text-2xs: var(--vb-text-min);
+  --text-xs: var(--vb-text-min);
+  --text-sm: 11px;
+  --text-md: 12px;
+  --text-lg: 16px;
+  --text-xl: 26px;
+  --text-2xl: 44px;
+  --tracking-caps: 0.16em;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --radius-sm: var(--vb-r1);
+  --radius-md: var(--vb-r2);
+  --radius-lg: var(--vb-r3);
+  --radius-round: 999px;
+  --dur-fast: 0.15s;
+  --dur-med: 0.3s;
+  --ease-out: var(--vb-ease);
+}

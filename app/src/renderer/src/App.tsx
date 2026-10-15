@@ -1,0 +1,200 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { WhatsNew } from '@/components/whatsnew/WhatsNew'
+import { useEffect, useRef } from 'react'
+import { ErrorBoundary } from '@/components/common/ErrorBoundary'
+import type { MenuCommand } from '@shared/bridge'
+import { usePresets, useSettings } from '@/api/queries'
+import type { BarsSetting, Preset } from '@/api/types'
+import { player } from '@/audio/playerInstance'
+import { BootScreen } from '@/components/feedback/BootScreen'
+import { ShortcutOverlay } from '@/components/feedback/ShortcutOverlay'
+import { Toast } from '@/components/feedback/Toast'
+import { AppShell } from '@/components/layout/AppShell'
+import { orderPresets } from '@/components/rack/PresetStrip'
+import { closeRack } from '@/components/rack/RackPanel'
+import { togglePlay } from '@/components/signal/Transport'
+import { toggleRecordingShortcut } from '@/components/source/takes'
+import { bridge } from '@/env'
+import { isTextTarget, matchShortcut, type ShortcutAction } from '@/lib/shortcuts'
+import { SettingsScreen } from '@/screens/SettingsScreen'
+import { StudioScreen } from '@/screens/StudioScreen'
+import { watchCapabilities } from '@/state/capabilities'
+import { connectEngineStatus, watchEngineRestarts } from '@/state/engine'
+import { selectPreset } from '@/state/rackActions'
+import { exportNow, renderFinal } from '@/state/renderController'
+import { studio, useStudio } from '@/state/studio'
+import { toast } from '@/state/toasts'
+import { useUi } from '@/state/ui'
+import { startStudioFrame } from '@/visuals/studioFrame'
+
+/** Keys that only mean something on the Studio (the native menu still reaches them from any page). */
+const STUDIO_ONLY = new Set<ShortcutAction>(['save-preset', 'toggle-ab', 'toggle-loop', 'toggle-metronome', 'render-final', 'export'])
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
+})
+
+function useCommands(presets: readonly Preset[]) {
+  const ordered = useRef<Preset[]>([])
+  ordered.current = orderPresets(presets).filter((p) => p.factory)
+  const settings = useSettings().data
+  const format = useRef(settings)
+  format.current = settings
+
+  useEffect(() => {
+    const run = (action: ShortcutAction | MenuCommand) => {
+      const ui = useUi.getState()
+      if (typeof action === 'object') {
+        const p = ordered.current[action.preset - 1]
+        if (p) {
+          ui.navigate('studio')
+          selectPreset(p)
+        }
+        return
+      }
+      switch (action) {
+        case 'play':
+          togglePlay()
+          break
+        case 'render-final':
+          ui.navigate('studio')
+          void renderFinal()
+          break
+        case 'export':
+          ui.navigate('studio')
+          void exportNow(format.current?.format ?? 'aiff', (format.current?.bit_depth ?? 24) as 16 | 24)
+          break
+        case 'toggle-ab':
+          player.toggleSide()
+          break
+        case 'toggle-loop':
+          player.setLoop(!useStudio.getState().loop)
+          break
+        case 'save-preset':
+          ui.navigate('studio')
+          if (useStudio.getState().rackOpen) closeRack() // the name field is in the rack strip, under the drawer
+          ui.setSavePresetOpen(true)
+          break
+        case 'shortcuts':
+          ui.setShortcutsOpen(!ui.shortcutsOpen)
+          break
+        case 'open-settings':
+          ui.navigate('settings')
+          break
+        case 'record':
+          if (ui.screen === 'studio') toggleRecordingShortcut()
+          break
+        case 'escape':
+          if (ui.shortcutsOpen) ui.setShortcutsOpen(false)
+          else if (ui.exportSheetOpen) ui.setExportSheetOpen(false)
+          else if (ui.savePresetOpen) ui.setSavePresetOpen(false)
+          else if (ui.modal) ui.setModal(null)
+          else if (useStudio.getState().rackOpen) closeRack()
+          break
+      }
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.defaultPrevented || useUi.getState().booting) return
+      // Page zoom (the menu's accelerators are display-only): only what no page took (REMIX zooms its timeline).
+      if ((e.metaKey || e.ctrlKey) && !e.altKey && /^[=+\-_0]$/.test(e.key)) {
+        e.preventDefault()
+        bridge()?.zoom(e.key === '0' ? 0 : e.key === '-' || e.key === '_' ? -1 : 1)
+        return
+      }
+      const typing = isTextTarget(e.target) || useStudio.getState().typing
+      const action = matchShortcut(e, typing)
+      if (!action) return
+      // Space activates a focused button/radio/tab as usual.
+      const el = e.target instanceof Element ? e.target : null
+      if (action === 'play' && el?.closest('button, [role="radio"], [role="switch"], [role="tab"], input, summary')) return
+      // Native dialogs (export sheet, save preset) keep their own keys, except the overlay toggle.
+      if (document.querySelector('dialog[open]') && action !== 'shortcuts') return
+      // The Studio's own keys (⌘S, A/B, loop, click) do nothing on other pages; the menu can still reach them.
+      if (typeof action === 'string' && STUDIO_ONLY.has(action) && useUi.getState().screen !== 'studio') return
+      e.preventDefault()
+      run(action)
+    }
+    window.addEventListener('keydown', onKey)
+    const off = bridge()?.onMenuCommand(run)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      off?.()
+    }
+  }, [])
+}
+
+/** One-time Studio defaults from the engine settings (preset, voice, BPM, bars, key). */
+function useStudioDefaults(presets: readonly Preset[]) {
+  const settings = useSettings().data
+  const done = useRef(false)
+  useEffect(() => {
+    if (done.current || !settings || presets.length === 0) return
+    done.current = true
+    const s = useStudio.getState()
+    if (!s.presetId) {
+      const preset = presets.find((p) => p.id === settings.default_preset_id) ?? orderPresets(presets)[0]
+      // No knob sweep or render here: there is nothing to render yet.
+      if (preset) studio.applyPreset(preset)
+    }
+    useStudio.setState({
+      voiceId: settings.default_voice_id ?? s.voiceId,
+      bpm: settings.default_bpm ?? s.bpm,
+      bars: (settings.default_bars ?? s.bars) as BarsSetting,
+      key: settings.default_key ?? s.key,
+      masterMode: settings.master?.mode ?? s.masterMode,
+    })
+  }, [settings, presets])
+}
+
+function Screens() {
+  const screen = useUi((s) => s.screen)
+  const presets = usePresets().data ?? []
+  const shortcutsOpen = useUi((s) => s.shortcutsOpen)
+  useCommands(presets)
+  useStudioDefaults(presets)
+  useEffect(() => connectEngineStatus(), [])
+  useEffect(() => watchEngineRestarts(() => useUi.getState().booting, toast), [])
+  useEffect(() => startStudioFrame(), [])
+  // A file dragged over anything that isn't a drop target: "no drop" cursor and nothing happens (real targets call
+  // preventDefault first; main's navigation lock is the backstop, so a stray drop never opens the file).
+  useEffect(() => {
+    const guard = (e: DragEvent) => {
+      if (e.defaultPrevented) return
+      e.preventDefault()
+      if (e.dataTransfer) e.dataTransfer.dropEffect = 'none'
+    }
+    window.addEventListener('dragover', guard)
+    window.addEventListener('drop', guard)
+    return () => {
+      window.removeEventListener('dragover', guard)
+      window.removeEventListener('drop', guard)
+    }
+  }, [])
+  useEffect(() => watchCapabilities(), [])
+  return (
+    <AppShell
+      overlays={
+        <>
+          <Toast />
+          <ShortcutOverlay open={shortcutsOpen} onClose={() => useUi.getState().setShortcutsOpen(false)} />
+          <WhatsNew />
+          <BootScreen />
+        </>
+      }
+    >
+      {/* A render error stays inside its page (and main.log); the app never goes blank. */}
+      <ErrorBoundary key={screen} scope={screen.toUpperCase()}>
+        {screen === 'studio' && <StudioScreen />}
+        {screen === 'settings' && <SettingsScreen />}
+      </ErrorBoundary>
+    </AppShell>
+  )
+}
+
+export function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Screens />
+    </QueryClientProvider>
+  )
+}
