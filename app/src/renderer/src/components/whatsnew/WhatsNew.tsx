@@ -140,7 +140,7 @@ export function WhatsNew({ current = __APP_VERSION__ }: { current?: string }) {
           <button ref={go} type="button" className={styles.go} onClick={done} data-testid="whats-new-go">
             LET’S GO
           </button>
-          <p className={styles.signoff}>Type a line. Get a finished vocal.</p>
+          <p className={styles.signoff}>Type a line. Get a finished vocal. Skip the session.</p>
         </footer>
       </div>
     </section>

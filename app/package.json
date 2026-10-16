@@ -1,7 +1,7 @@
 {
   "name": "foxbox-voice",
   "productName": "FoxBox Voice",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "private": true,
   "description": "FoxBox Voice (beta): type a line or record your own, get a finished vocal cut to the bar. Mac (Apple silicon) only.",
   "author": "GUY FVWKS",

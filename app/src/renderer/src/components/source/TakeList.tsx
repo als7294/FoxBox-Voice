@@ -42,7 +42,7 @@ export function TakeList({ takes, activeId, onUse, onRetry }: TakeListProps) {
     void el.play()
     setPlaying(t.id)
   }
-  if (takes.length === 0) return <div className={styles.noTakes}>No takes yet. Every take is cut bar-exact at the session tempo.</div>
+  if (takes.length === 0) return <div className={styles.noTakes}>No takes yet. Every take lands bar-exact at the session tempo. No nudging.</div>
   return (
     <ol className={styles.takes} aria-label="Takes">
       {takes.map((t) => {

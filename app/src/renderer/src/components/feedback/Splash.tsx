@@ -17,8 +17,9 @@ type Seg = string | { tok: string; kind: 'beat' | 'echo' | 'gap' }
 const TIPS: Seg[][] = [
   [{ tok: '|', kind: 'beat' }, ' starts the next part on the next beat.'],
   [{ tok: '*word*', kind: 'echo' }, ' throws that word into an echo.'],
-  [{ tok: '[2b]', kind: 'gap' }, ' is a gap of two beats.'],
-  ['Drag the finished vocal straight into your DAW.'],
+  [{ tok: '[2b]', kind: 'gap' }, ' is a gap of two beats. Breathing room, measured.'],
+  ['Drag the vocal into your DAW. The file name knows the BPM.'],
+  ['Your vocalist, minus the scheduling.'],
 ]
 const TIP_MS = 3500
 /** No milestone for this long is a failed start. */
