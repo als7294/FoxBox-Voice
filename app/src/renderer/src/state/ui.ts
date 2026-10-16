@@ -50,7 +50,8 @@ interface UiState {
 export const useUi = create<UiState>((set, get) => ({
   screen: 'studio',
   wipe: null,
-  booting: typeof window !== 'undefined' && !reducedMotion(),
+  // Behind the launch splash (?splash=1) the Studio shows only once the boot is done: no boot screen of its own.
+  booting: typeof window !== 'undefined' && !reducedMotion() && !new URLSearchParams(window.location.search).has('splash'),
   shortcutsOpen: false,
   exportSheetOpen: false,
   savePresetOpen: false,

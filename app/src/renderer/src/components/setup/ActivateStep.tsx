@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { BetaState } from '@shared/bridge'
+import launchPosterUrl from '../../../../../design/brand/voice/fbv-launch-poster.jpg?url'
+import launchVideoUrl from '../../../../../design/brand/voice/fbv-launch.mp4?url'
 import { Button } from '@/components/common/Button'
-import { Lockup } from '@/components/common/Lockup'
 import { bridge } from '@/env'
+import { animate, reducedMotion } from '@/visuals/motion'
 import styles from './setup.module.css'
 
 /** FBV-XXXX-XXXX-XXXX as it's typed: upper case, dashes added (the check itself is main's, offline). */
@@ -13,56 +15,98 @@ export function formatTyped(raw: string): string {
   return s ? `FBV-${s.match(/.{1,4}/g)!.join('-')}` : ''
 }
 
+/** ACTIVATE's backdrop: the launch scene (the boot screen's painted loop) under its night scrim; a still frame under
+ *  reduced motion. Setup's window renders it behind everything while the step shows. */
+export function ActivateScene() {
+  return (
+    <div className={styles.scene} aria-hidden="true">
+      <video
+        className={styles.sceneVideo}
+        src={launchVideoUrl}
+        poster={launchPosterUrl}
+        autoPlay={!reducedMotion()}
+        loop
+        muted
+        playsInline
+        disablePictureInPicture
+      />
+      <div className={styles.sceneScrim} />
+    </div>
+  )
+}
+
+type CardState = 'idle' | 'checking' | 'bad' | 'accepted'
+/** The check takes a moment however fast scrypt is: long enough to read as calm, not a flicker. */
+const CHECK_MIN_MS = 650
+/** Accepted: the glow, then the card lifts away while the scene clears (main or Setup moves on at 900 ms). */
+const LEAVE_AFTER_MS = 350
+
 /**
- * Setup's ACTIVATE step: shown first whenever this Mac has no valid activation (checked on every launch). One field,
- * the invite code; main checks it and says where to go next: the Studio (Setup was done before) or WELCOME.
+ * Setup's ACTIVATE step: shown first whenever this Mac has no valid activation (checked on every launch). One line, the
+ * code field and UNLOCK, on a light card over the launch scene (the top bar already carries the lockup); main checks the
+ * code and says where to go next: the Studio (Setup was done before) or WELCOME.
  */
-export function ActivateStep({ state, onSetup }: { state: BetaState | null; onSetup(): void }) {
+export function ActivateStep({
+  state,
+  onSetup,
+  onAccepted,
+}: {
+  state: BetaState | null
+  onSetup(): void
+  /** Accepted: the scene behind can start to clear. */
+  onAccepted?(): void
+}) {
   const [code, setCode] = useState('')
-  const [busy, setBusy] = useState(false)
+  const [card, setCard] = useState<CardState>('idle')
   const [error, setError] = useState<string | null>(null)
   const [accepted, setAccepted] = useState<string | null>(null)
+  const [leaving, setLeaving] = useState(false)
   const input = useRef<HTMLInputElement>(null)
+  const form = useRef<HTMLFormElement>(null)
   useEffect(() => input.current?.focus(), [])
+
+  const refuse = (message: string) => {
+    setError(message)
+    setCard('bad')
+    input.current?.select()
+    // A small shake, settling fast (the tint stays until the code changes; under reduced motion only the tint).
+    animate(form.current, [0, -7, 6, -4, 2, 0].map((x) => ({ transform: `translateX(${x}px)` })), { duration: 420, easing: 'ease-out' })
+  }
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
     const b = bridge()
-    if (!b || busy || accepted) return
-    setBusy(true)
+    if (!b || card === 'checking' || accepted) return
+    setCard('checking')
     setError(null)
     try {
+      // The calm pause comes first: once main answers 'app' it opens the Studio 900 ms later, and the success needs
+      // all of that to show.
+      await new Promise((done) => setTimeout(done, CHECK_MIN_MS))
       const r = await b.beta.activate(code)
       if (r.ok) {
         setAccepted(r.id)
+        setCard('accepted')
+        onAccepted?.()
+        window.setTimeout(() => setLeaving(true), LEAVE_AFTER_MS)
         if (r.next !== 'app') window.setTimeout(onSetup, 900) // 'app': main opens the Studio and closes Setup
-      } else {
-        setError(r.error)
-        input.current?.select()
-      }
+      } else refuse(r.error)
     } catch (err) {
-      setError((err as Error).message)
-    } finally {
-      setBusy(false)
+      refuse((err as Error).message)
     }
   }
 
   return (
-    <form className={styles.activate} onSubmit={(e) => void submit(e)} data-testid="beta-access">
-      <div>
-        <div className={styles.kicker}>Beta access</div>
-        <h1 className={styles.welcomeTitle}>
-          <Lockup className={styles.welcomeLockup} />
-        </h1>
-      </div>
-      <p className={styles.lede}>
-        {state?.state === 'revoked'
-          ? `The invite this Mac used (${state.id}) was withdrawn. Enter a new one to keep going.`
-          : 'FoxBox Voice is in a private beta. Enter your invite code to unlock it on this Mac.'}
-      </p>
-      <label className={styles.codeLabel} htmlFor="invite">
-        Invite code
-      </label>
+    <form
+      ref={form}
+      className={styles.activate}
+      data-state={card}
+      data-leaving={leaving || undefined}
+      onSubmit={(e) => void submit(e)}
+      data-testid="beta-access"
+      aria-busy={card === 'checking'}
+    >
+      <h1 className={styles.activateLine}>{state?.state === 'revoked' ? 'Enter a new invite code.' : 'Enter your invite code.'}</h1>
       <input
         ref={input}
         id="invite"
@@ -71,6 +115,7 @@ export function ActivateStep({ state, onSetup }: { state: BetaState | null; onSe
         onChange={(e) => {
           setCode(formatTyped(e.target.value))
           setError(null)
+          if (card === 'bad') setCard('idle')
         }}
         placeholder="FBV-XXXX-XXXX-XXXX"
         autoComplete="off"
@@ -78,18 +123,22 @@ export function ActivateStep({ state, onSetup }: { state: BetaState | null; onSe
         spellCheck={false}
         maxLength={18}
         disabled={Boolean(accepted)}
+        aria-label="Invite code"
         aria-invalid={Boolean(error)}
         aria-describedby="invite-status"
       />
       <p id="invite-status" className={styles.codeStatus} data-tone={accepted ? 'ok' : error ? 'bad' : undefined} role="status">
-        {accepted ? `Accepted · ${accepted}` : (error ?? ' ')}
+        {accepted
+          ? `Accepted · ${accepted}`
+          : card === 'checking'
+            ? 'Checking on this Mac…'
+            : (error ?? (state?.state === 'revoked' ? `The invite this Mac used (${state.id}) was withdrawn.` : ' '))}
       </p>
       <div>
-        <Button type="submit" variant="primary" size="lg" disabled={busy || Boolean(accepted) || code.length < 18}>
-          {busy ? 'Checking…' : 'Unlock'}
+        <Button type="submit" variant="primary" size="lg" disabled={card === 'checking' || Boolean(accepted) || code.length < 18}>
+          {card === 'checking' ? 'Checking…' : accepted ? 'Unlocked' : 'Unlock'}
         </Button>
       </div>
-      <p className={styles.note}>Mac (Apple silicon) only · a code is for one Mac · checked on this Mac, nothing is sent</p>
     </form>
   )
 }

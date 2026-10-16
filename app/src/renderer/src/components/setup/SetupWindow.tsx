@@ -29,7 +29,7 @@ import {
 } from './plan'
 import { SetupError, SetupReady } from './SetupOutcomes'
 import { SetupWelcome } from './SetupWelcome'
-import { ActivateStep } from './ActivateStep'
+import { ActivateScene, ActivateStep } from './ActivateStep'
 import { useSetupData, useSetupInstall } from './useSetupInstall'
 import styles from './setup.module.css'
 
@@ -134,6 +134,7 @@ function SetupFlow() {
     )
   }, [])
   const needsActivation = beta != null && beta.state !== 'active'
+  const [unlocked, setUnlocked] = useState(false)
   const [picks, setPicks] = useState<Selection>(savedPicks)
   const [plan, setPlan] = useState<PlanItem[] | null>(null)
   const [cancelled, setCancelled] = useState(false)
@@ -365,7 +366,8 @@ function SetupFlow() {
   const stepIndex = steps.findIndex((s) => s.id === step)
 
   return (
-    <div className={styles.window} data-step={step}>
+    <div className={styles.window} data-step={step} data-unlocked={unlocked || undefined}>
+      {step === 'activate' && <ActivateScene />}
       <header className={styles.top}>
         <FoxMark size={24} className={styles.mark} />
         <span className={styles.brand}>
@@ -382,7 +384,7 @@ function SetupFlow() {
       </header>
 
       <main className={styles.body} hidden={!betaChecked}>
-        {step === 'activate' && <ActivateStep state={beta} onSetup={() => setStep('welcome')} />}
+        {step === 'activate' && <ActivateStep state={beta} onAccepted={() => setUnlocked(true)} onSetup={() => setStep('welcome')} />}
         {step === 'welcome' && (
           <SetupWelcome
             resume={resumeHint}

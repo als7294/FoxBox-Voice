@@ -43,6 +43,6 @@ bundled: the app downloads them at first run or on request, under each model's o
 | [Electron](https://github.com/electron/electron) · electron-vite · electron-builder | Desktop shell and packaging | MIT |
 | [React](https://github.com/facebook/react) · [Vite](https://github.com/vitejs/vite) · TypeScript | UI | MIT / Apache-2.0 |
 | [TanStack Query](https://github.com/TanStack/query) · [Zustand](https://github.com/pmndrs/zustand) · openapi-typescript/openapi-fetch | Data and state | MIT |
-| [Big Shoulders Display](https://fonts.google.com/specimen/Big+Shoulders+Display) · [JetBrains Mono](https://www.jetbrains.com/lp/mono/) | Bundled fonts | SIL OFL 1.1 |
+| [Big Shoulders Display](https://fonts.google.com/specimen/Big+Shoulders+Display) · [JetBrains Mono](https://www.jetbrains.com/lp/mono/) · [Geist](https://vercel.com/font) | Bundled fonts | SIL OFL 1.1 |
 
 The full license texts ship with each package in the engine environment and in `node_modules`.

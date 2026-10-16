@@ -218,7 +218,10 @@ function Boot() {
     leaving.current = true
     revealPanels(document, 160)
     const el = rootRef.current
-    const done = () => useUi.getState().setBooting(false)
+    const done = () => {
+      bridge()?.log('boot', 'studio shown') // main.log's timing line, as the splash path logs it
+      useUi.getState().setBooting(false)
+    }
     if (!el || reducedMotion() || typeof el.animate !== 'function') return done()
     const a = el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: FADE_MS, easing: 'ease-out', fill: 'forwards' })
     a.onfinish = done

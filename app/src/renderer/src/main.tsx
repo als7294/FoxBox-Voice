@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './App'
+import { SplashWindow } from './components/feedback/Splash'
 import { SetupWindow } from './components/setup/SetupWindow'
 import { isMockMode } from './env'
 import './styles/fonts.css'
@@ -18,7 +19,9 @@ async function boot() {
   }
   // Main opens Setup (its ACTIVATE step for beta access, then first-run model installs) as index.html?window=setup
   // (same bundle, same preload).
-  const root = params.get('window') === 'setup' ? <SetupWindow /> : <App />
+  // The launch splash is index.html?window=splash; the Studio behind it loads with ?splash=1 (no boot screen of its own).
+  const which = params.get('window')
+  const root = which === 'setup' ? <SetupWindow /> : which === 'splash' ? <SplashWindow /> : <App />
   createRoot(document.getElementById('root')!).render(<StrictMode>{root}</StrictMode>)
 }
 

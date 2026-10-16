@@ -585,17 +585,176 @@
   white-space: nowrap;
 }
 
-/* ACTIVATE (beta access): the invite code, in Setup's own type. */
+/* ACTIVATE (beta access): the invite code on a card over the launch scene (the boot screen's painted loop). The
+   scene sits behind the whole window; the bars go clear over it. The card eases in, breathes while the code is
+   checked, shakes and tints on a bad one, and on a good one glows, lifts away and lets the scene clear. */
+.scene {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  animation: sceneIn 900ms ease both;
+}
+.sceneVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* The boot screen's night scrim: dark on the left behind the card, clearing towards the sleeping fox on the right. */
+.sceneScrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(4, 7, 14, 0.78) 0, rgba(4, 7, 14, 0) 16%, rgba(4, 7, 14, 0) 84%, rgba(4, 7, 14, 0.82) 100%),
+    linear-gradient(90deg, rgba(4, 7, 14, 0.86) 0, rgba(4, 7, 14, 0.7) 40%, rgba(4, 7, 14, 0.28) 68%, rgba(4, 7, 14, 0.12) 100%);
+  transition: opacity 700ms ease;
+}
+.window[data-unlocked] .sceneScrim {
+  opacity: 0.4;
+}
+.window[data-step='activate']::after {
+  opacity: 0.5;
+}
+.window[data-step='activate'] .top,
+.window[data-step='activate'] .foot {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  border-color: transparent;
+}
+/* Only the lockup up top and the credit at the foot, faint: the room carries the screen. */
+.window[data-step='activate'] .steps,
+.window[data-step='activate'] .brandSub,
+.window[data-step='activate'] .footNote {
+  visibility: hidden;
+}
+.window[data-step='activate'] .foot {
+  opacity: 0.55;
+}
+@keyframes sceneIn {
+  from {
+    opacity: 0;
+  }
+}
+
 .activate {
-  --hero: 72px;
-  flex: 1;
+  position: relative;
+  margin: auto 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: flex-start;
   gap: var(--space-3);
-  max-width: 560px;
-  padding-bottom: var(--space-5);
+  width: min(420px, 100%);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: rgba(6, 10, 18, 0.34);
+  backdrop-filter: blur(10px) saturate(1.1);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  animation: cardIn 700ms cubic-bezier(0.2, 0.8, 0.2, 1) 150ms both;
+  transition:
+    border-color 300ms ease,
+    box-shadow 400ms ease,
+    opacity 500ms ease,
+    transform 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* Checking: the edge breathes in the accent and a hairline sweeps along the bottom. */
+.activate::before,
+.activate::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+}
+.activate::before {
+  inset: -1px;
+  border: 1px solid var(--vb-accent);
+  border-radius: inherit;
+}
+.activate::after {
+  left: 18px;
+  right: 18px;
+  bottom: 10px;
+  height: 2px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, transparent, var(--vb-accent), transparent) no-repeat;
+  background-size: 40% 100%;
+}
+.activate[data-state='checking']::before {
+  animation: breathe 1.6s ease-in-out infinite;
+}
+.activate[data-state='checking']::after {
+  opacity: 1;
+  animation: sweep 1.1s linear infinite;
+}
+.activate[data-state='bad'] {
+  border-color: color-mix(in srgb, var(--vb-danger) 45%, transparent);
+}
+.activate[data-state='bad'] .codeInput {
+  border-color: var(--vb-danger);
+  background: color-mix(in srgb, var(--vb-danger) 12%, var(--vb-well));
+}
+.activate[data-state='accepted'] {
+  border-color: color-mix(in srgb, var(--vb-ok) 60%, transparent);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.45),
+    0 0 48px color-mix(in srgb, var(--vb-ok) 28%, transparent);
+}
+.activate[data-leaving] {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.98);
+}
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.985);
+  }
+}
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+@keyframes sweep {
+  from {
+    background-position: -40% 0;
+  }
+  to {
+    background-position: 140% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .activate,
+  .scene {
+    animation: sceneIn 200ms ease both;
+  }
+  .activate[data-state='checking']::before {
+    animation: none;
+    opacity: 0.4;
+  }
+  .activate[data-state='checking']::after {
+    animation: none;
+    background-size: 100% 100%;
+    opacity: 0.5;
+  }
+  .activate[data-leaving] {
+    transform: none;
+  }
+}
+.activateLine {
+  margin: 0 0 var(--space-1);
+  font: 600 28px/1.15 'Geist', system-ui, sans-serif;
+  letter-spacing: -0.01em;
+  color: var(--vb-ink);
+}
+.activate .codeInput {
+  width: 100%;
 }
 .codeLabel {
   margin-top: var(--space-2);

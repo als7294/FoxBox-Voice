@@ -5,11 +5,11 @@
 ### Type a line. Get a finished vocal.
 
 FoxBox Voice turns a typed line, or your own recording, into a processed vocal that's cut to the bar and ready to drag
-into your DAW. Everything runs on your Mac.
+into your DAW. Your vocalist, minus the scheduling. Everything runs on your Mac.
 
 <br/>
 
-![BETA](https://img.shields.io/badge/BETA-invite_only-0d1426?style=for-the-badge)
+![BETA](https://img.shields.io/badge/BETA-invite_code-0d1426?style=for-the-badge)
 
 ![macOS 14+](https://img.shields.io/badge/macOS_14+-Apple_silicon-0d1426?style=flat-square&logo=apple&logoColor=eef3f8)
 ![On-device](https://img.shields.io/badge/100%25-on--device-0d1426?style=flat-square)
@@ -20,24 +20,27 @@ into your DAW. Everything runs on your Mac.
 
 <br/>
 
-> **FoxBox Voice is a free, invite-only beta.** You need an invite code to unlock it: see
-> [Get an invite](#get-an-invite--i-have-a-code). Looking for the hands instrument? That's
+> **FoxBox Voice is a free beta, unlocked with an invite code.** Download it, and it asks for your code the first time
+> you open it: see [I have a code](#i-have-a-code). Looking for the hands instrument? That's
 > [FoxBox Strings](https://github.com/als7294/FoxBox).
 
 ## How it works
 
 ```text
-  TYPE / RECORD  ─▶  SHAPE ─▶  FIT TO THE BAR  ─▶  MASTER  ─▶  EXPORT
-  built-in voices    presets    1–16 bars, or     clean or     AIFF / WAV + rekordbox.xml,
-  or your own mic    + macros   AUTO; the last    loud (CLUB)  dragged straight into
-                                word on the beat               your DAW or DJ software
+  TYPE / RECORD    ─▶  SHAPE ─▶  FIT TO THE BAR  ─▶  MASTER  ─▶  EXPORT
+  / IMPORT
+  built-in voices,      presets    1–16 bars, or     clean or     AIFF / WAV + rekordbox.xml,
+  your own mic, or      + macros   AUTO; the last    loud (CLUB)  dragged straight into
+  any audio file                   word on the beat               your DAW or DJ software
 ```
 
-## 🎙 Type or record
+## 🎙 Type, record or import
 
-- **Type a line** and pick one of the built-in voices. It's text-to-speech on your Mac's GPU, faster than real time.
+- **Type a line** and pick one of the built-in voices. It's text-to-speech on your Mac's GPU, faster than real time, and it never asks for a retake.
 - **Or record yourself,** with a 3-beat count-in at your BPM that stops at the bar count. Recordings are cleaned of room
   noise and hum.
+- **Or import** any audio file on the IMPORT tab: drop a spoken take (WAV, AIFF, FLAC, MP3, M4A, or the sound of a
+  video) and it goes through the same chain.
 - **Script tricks:**
 
   | Markup | Effect |
@@ -72,7 +75,7 @@ A rack of voice effects, with seven presets to start from and four big macros to
 
 - **1, 2, 4, 8 or 16 bars** at your BPM and key, or **AUTO** to pick the count that fits the line and its tail.
 - **The last word lands on the beat** (or the bar), and each `|` part starts on a beat. Speech and tails are never cut.
-- **Exact lengths:** 4 bars at 140 BPM is exactly 4 bars, sample for sample, so it lines up on your DAW's grid (and on a CDJ).
+- **Exact lengths:** 4 bars at 140 BPM is exactly 4 bars, sample for sample, so it lines up on your DAW's grid (and on a CDJ). No nudging.
 
 ## 💿 Export
 
@@ -81,18 +84,18 @@ A rack of voice effects, with seven presets to start from and four big macros to
 - **rekordbox.xml** with the beatgrid, **hot cue A on the first word** and a memory cue where the voice ends.
 - **Drag the finished vocal** straight into Ableton or any DAW, Rekordbox or Finder.
 
-## Get an invite / I have a code
+## I have a code
 
-- **Get an invite:** see [foxbox.tech/voice](https://foxbox.tech/voice/#invite). It's free; invites go out by hand during the beta.
-- **I have a code:**
-  1. Download the latest beta from [Releases](https://github.com/als7294/FoxBox-Voice/releases/latest) and install it (see below).
-  2. Open FoxBox Voice and type your code. It looks like `FBV-XXXX-XXXX-XXXX`.
-  3. That's it: the code is checked on your Mac, and nothing is sent anywhere.
-- **The honest bit:**
-  - Each code is for one Mac.
-  - Because codes are checked on your Mac with no server, FoxBox can't stop a code from being shared. A code that gets
-    shared around is withdrawn in the next update, and every Mac that used it asks for a new one.
-  - Please keep yours to yourself. New Mac? Ask for a new code.
+1. Download the latest beta from [Releases](https://github.com/als7294/FoxBox-Voice/releases/latest) and install it (see below).
+2. Open FoxBox Voice: it asks for your code first. It looks like `FBV-XXXX-XXXX-XXXX`.
+3. That's it: the code is checked on your Mac, and nothing is sent anywhere.
+
+**The honest bit:**
+
+- Each code is for one Mac.
+- Because codes are checked on your Mac with no server, FoxBox can't stop a code from being shared. A code that gets
+  shared around is withdrawn in the next update, and every Mac that used it asks for a new one.
+- Please keep yours to yourself. New Mac? Ask for a new code.
 
 ## Install
 

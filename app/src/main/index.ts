@@ -7,6 +7,7 @@ import {
   nativeImage,
   protocol,
   safeStorage,
+  screen,
   session,
   shell,
   systemPreferences,
@@ -141,6 +142,29 @@ const BETA_GATE = app.isPackaged || devEnv('FVWKS_BETA_GATE') === '1'
 let updater: Updater | null = null
 /** The update check at boot (UPDATE REQUIRED on the boot screen); made right after the rollback check. */
 let bootGate: BootUpdateGate | null = null
+// The launch splash: the Studio window loads hidden behind it and shows when the splash says the boot is done.
+let splashWindow: BrowserWindow | null = null
+let studioWanted = false
+let studioReady = false
+let bootT0 = 0
+let warmLogged = false
+/** FVWKS_NO_SPLASH=1 (development): the old in-window boot screen, e.g. to compare start-up times. */
+const SPLASH = devEnv('FVWKS_NO_SPLASH') !== '1'
+/**
+ * FVWKS_CAPTURE_OFFSCREEN=1 (captures and smokes): nothing reaches the user's screen. The splash opens off-screen, the
+ * other windows open fully transparent, ignore the mouse and never take focus. Development builds, and a packaged
+ * isolated test copy (a `.test` bundle id, which only the staging scripts give); never the user's own install.
+ */
+const OFFSCREEN =
+  process.env.FVWKS_CAPTURE_OFFSCREEN === '1' && (!app.isPackaged || /\.test(\.|$)/.test(process.env.__CFBundleIdentifier ?? ''))
+
+/** Show a window, or (capture runs) keep it out of sight while it still renders. */
+function reveal(win: BrowserWindow): void {
+  if (!OFFSCREEN) return win.show()
+  win.setOpacity(0)
+  win.setIgnoreMouseEvents(true)
+  win.showInactive()
+}
 let quitting = false
 let cachedIcon: NativeImage | null = null
 let lastState: EngineStatus['state'] | null = null
@@ -231,13 +255,15 @@ function sendToRenderer(channel: string, payload: unknown): void {
 
 /** Engine status and update state go to every app window (the Setup window watches the engine too). */
 function broadcast(channel: string, payload: unknown): void {
-  for (const win of [mainWindow, setupWindow]) {
+  for (const win of [mainWindow, setupWindow, splashWindow]) {
     const wc = win?.webContents
     if (wc && !wc.isDestroyed()) wc.send(channel, payload)
   }
 }
 
-function createWindow(): void {
+/** The Studio window. `behindSplash`: it loads hidden (`?splash=1`: no boot screen of its own) and shows when the
+ *  splash says the boot is done, so it adds nothing to the start-up. */
+function createWindow(behindSplash = false): void {
   const win = new BrowserWindow({
     width: 1512,
     height: 982,
@@ -259,12 +285,91 @@ function createWindow(): void {
     },
   })
   mainWindow = win
-  win.once('ready-to-show', () => win.show())
+  win.once('ready-to-show', () => {
+    if (!behindSplash) return reveal(win)
+    studioReady = true
+    showStudioWhenDue()
+  })
   win.on('closed', () => {
     if (mainWindow === win) mainWindow = null
   })
-  if (RENDERER_URL) void win.loadURL(RENDERER_URL)
-  else void win.loadFile(join(RENDERER_DIR, 'index.html'))
+  if (RENDERER_URL) {
+    const url = new URL(RENDERER_URL)
+    if (behindSplash) url.searchParams.set('splash', '1')
+    void win.loadURL(url.toString())
+  } else void win.loadFile(join(RENDERER_DIR, 'index.html'), behindSplash ? { query: { splash: '1' } } : undefined)
+}
+
+/**
+ * The launch splash (`?window=splash`): 720×450, frameless, centred on the display under the cursor, up within a few
+ * hundred ms. It shows the real start-up (the invite check, the update check, the engine's stages) and calls
+ * splash.done() when the Studio may open.
+ */
+function createSplashWindow(): void {
+  const { workArea } = screen.getDisplayNearestPoint(screen.getCursorScreenPoint())
+  const [width, height] = [720, 450]
+  const win = new BrowserWindow({
+    width,
+    height,
+    x: OFFSCREEN ? -20000 : Math.round(workArea.x + (workArea.width - width) / 2),
+    y: OFFSCREEN ? -20000 : Math.round(workArea.y + (workArea.height - height) / 2),
+    frame: false,
+    resizable: false,
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    show: false,
+    title: PRODUCT,
+    backgroundColor: '#04070e',
+    webPreferences: {
+      preload: join(__dirname, '../preload/index.js'),
+      contextIsolation: true,
+      sandbox: true,
+      nodeIntegration: false,
+      webSecurity: true,
+      spellcheck: false,
+      backgroundThrottling: false,
+    },
+  })
+  splashWindow = win
+  win.once('ready-to-show', () => {
+    if (OFFSCREEN) win.showInactive()
+    else win.show()
+    log(`boot: splash up +${Date.now() - bootT0} ms`)
+  })
+  win.on('closed', () => {
+    if (splashWindow !== win) return
+    splashWindow = null
+    // Closed before the Studio was due (⌘W): open it rather than leave nothing on screen.
+    studioWanted = true
+    showStudioWhenDue()
+  })
+  if (RENDERER_URL) {
+    const url = new URL(RENDERER_URL)
+    url.searchParams.set('window', 'splash')
+    void win.loadURL(url.toString())
+  } else void win.loadFile(join(RENDERER_DIR, 'index.html'), { query: { window: 'splash' } })
+}
+
+/** The Studio shows once the splash says the boot is done and the window has painted; then the splash goes. */
+function showStudioWhenDue(): void {
+  const win = mainWindow
+  if (!studioWanted || !studioReady || !win || win.isDestroyed()) return
+  if (!win.isVisible()) {
+    reveal(win)
+    log(`boot: studio shown +${Date.now() - bootT0} ms`)
+  }
+  closeSplash()
+}
+
+/** The splash fades itself (on done) or simply goes (Setup takes over): closed a moment later. */
+function closeSplash(): void {
+  const win = splashWindow
+  if (!win) return
+  splashWindow = null
+  setTimeout(() => {
+    if (!win.isDestroyed()) win.close()
+  }, 260)
 }
 
 /** The Setup window (900×620) on the same renderer bundle and preload, `index.html?window=setup`. */
@@ -289,7 +394,7 @@ function createPanelWindow(title: string): BrowserWindow {
       spellcheck: false,
     },
   })
-  win.once('ready-to-show', () => win.show())
+  win.once('ready-to-show', () => reveal(win))
   if (RENDERER_URL) {
     const url = new URL(RENDERER_URL)
     url.searchParams.set('window', 'setup')
@@ -463,7 +568,7 @@ function createBootGate(u: Updater, firstRun: boolean): BootUpdateGate {
   const skip = bootSkipReason({ packaged: app.isPackaged, firstRun, optOut, state: u.getState() })
   const gate = new BootUpdateGate({ updater: u, current: app.getVersion(), skip, log: (line) => log(`updates: ${line}`) })
   gate.on('state', (state) => {
-    sendToRenderer(IPC.bootUpdateState, state)
+    broadcast(IPC.bootUpdateState, state)
     if (state.phase === 'clear') u.startAutoCheck()
   })
   if (skip) u.startAutoCheck()
@@ -754,6 +859,15 @@ function registerIpc(): void {
     return { ...result, next: afterActivation() }
   })
 
+  ipcMain.on(IPC.splashDone, (event) => {
+    if (!trusted(event) || event.sender !== splashWindow?.webContents) return
+    studioWanted = true
+    showStudioWhenDue()
+  })
+  ipcMain.on(IPC.appQuit, (event) => {
+    if (trusted(event)) app.quit()
+  })
+
   ipcMain.handle(IPC.welcome, (event, artist: unknown) =>
     trusted(event) && typeof artist === 'string' && artist.length <= 200 ? openWelcome(artist, sealedWelcome as Sealed | null) : null,
   )
@@ -879,6 +993,10 @@ async function startEngine(): Promise<void> {
     const health = status.health as { export_dir?: unknown } | null
     if (status.state === 'ready' && typeof health?.export_dir === 'string') exportGuard.setRoot(health.export_dir)
     lastState = status.state
+    if (!warmLogged && (status.health as { state?: unknown } | null)?.state === 'ready') {
+      warmLogged = true
+      log(`boot: engine warm +${Date.now() - bootT0} ms`)
+    }
     broadcast(IPC.engineStatus, status)
   })
   await supervisor.start()
@@ -901,6 +1019,7 @@ if (!app.requestSingleInstanceLock()) {
   registerIpc()
 
   void app.whenReady().then(async () => {
+    bootT0 = Date.now()
     log(`starting ${app.getName()} ${app.getVersion()} (packaged=${app.isPackaged}, mock=${MOCK}, engine=${ENGINE_DIR})`)
     lockDownPermissions()
     handleDownloads()
@@ -921,6 +1040,8 @@ if (!app.requestSingleInstanceLock()) {
     updater = createUpdater()
     // An update that kept failing to start: put the previous app back (it relaunches) before anything else runs.
     if (updater.needsRollback && updater.rollback()) return
+    // The splash first: it says "Checking your invite" while the activation check below runs.
+    if (SPLASH) createSplashWindow()
     // Beta access, checked on every launch (offline): without a valid activation, Setup opens at its ACTIVATE step and
     // nothing else starts (no engine, no Studio) until a code is accepted (afterActivation).
     betaAccess = new BetaAccess(USER_DATA, codeBook as CodeBook, await hardwareUuid())
@@ -929,6 +1050,7 @@ if (!app.requestSingleInstanceLock()) {
     else if (BETA_GATE) {
       log(`beta access: ${beta.state === 'revoked' ? `invite ${beta.id} was revoked` : 'no valid invite on this Mac'}; Setup asks for a code`)
       bootGate = createBootGate(updater, true)
+      closeSplash()
       createSetupWindow()
       setupWindow?.webContents.once('did-finish-load', () => void updater?.confirmLaunch())
       return
@@ -943,9 +1065,10 @@ if (!app.requestSingleInstanceLock()) {
     // After the rollback above, never in front of Setup; it holds the boot screen only (the engine starts as usual).
     bootGate = createBootGate(updater, firstRun)
     if (firstRun) {
+      closeSplash()
       await openFirstRunWindow()
     } else {
-      createWindow()
+      createWindow(Boolean(splashWindow))
     }
     // A window that loaded confirms an update's good start (the previous app kept for rollback can go).
     ;(mainWindow ?? setupWindow)?.webContents.once('did-finish-load', () => void updater?.confirmLaunch())

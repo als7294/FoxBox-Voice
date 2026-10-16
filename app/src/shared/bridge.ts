@@ -218,6 +218,13 @@ export interface Welcome {
   wordmark: string
 }
 
+/** The launch splash (`index.html?window=splash`): it shows the real start-up and says when the Studio may open. */
+export interface SplashBridge {
+  /** Engine ready and nothing holds the boot: main shows the Studio and closes the splash. */
+  done(): void
+  quit(): void
+}
+
 /** What the preload script exposes as `window.fvwks`. */
 export interface FvwksBridge {
   readonly isElectron: true
@@ -266,6 +273,8 @@ export interface FvwksBridge {
   readonly setup: SetupBridge
   /** Beta access: Setup's ACTIVATE step. */
   readonly beta: BetaBridge
+  /** The launch splash. */
+  readonly splash: SplashBridge
   /** The sealed welcome for this artist name, or null. */
   welcome(artist: string): Promise<Welcome | null>
 }
@@ -306,6 +315,8 @@ export const IPC = {
   betaState: 'fvwks:beta-state',
   betaActivate: 'fvwks:beta-activate',
   welcome: 'fvwks:welcome',
+  splashDone: 'fvwks:splash-done',
+  appQuit: 'fvwks:app-quit',
 } as const
 
 export interface BootInfo {

@@ -96,6 +96,10 @@ const bridge: FvwksBridge = {
   bootUpdate,
   setup,
   beta,
+  splash: {
+    done: () => ipcRenderer.send(IPC.splashDone),
+    quit: () => ipcRenderer.send(IPC.appQuit),
+  },
   welcome: (artist) => ipcRenderer.invoke(IPC.welcome, artist) as Promise<Welcome | null>,
 }
 

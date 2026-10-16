@@ -37,7 +37,7 @@ module.exports = {
     target: [{ target: 'dir', arch: ['arm64'] }],
     artifactName: 'FoxBox-Voice-${version}-${arch}.${ext}',
     category: 'public.app-category.music',
-    // The app icon (design/brand/voice/fbv-icon-1024.png, built into an .icns with iconutil; a placeholder until the art lands).
+    // The app icon (design/brand/icons/foxbox-voice-a.svg; its 16-1024 PNGs built into an .icns with iconutil).
     icon: 'build-resources/icon.icns',
     // Ad-hoc signature (no Developer ID). Hardened runtime would reject Electron's pre-signed frameworks.
     identity: '-',
