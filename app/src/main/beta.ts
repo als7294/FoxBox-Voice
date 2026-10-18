@@ -8,6 +8,11 @@
  * folder doesn't carry it), and every launch checks that code against the book again: an activation file can't be
  * written from what the app ships without a real code.
  *
+ * A word key (beta.4) is a plain word in place of a code: the user mints it (scripts/mint-beta-codes.mjs --word W-001),
+ * and it goes through the same book: its tag and its scrypt hash, an id the revocation list can name. Typed, it's upper
+ * cased with everything but A-Z and 0-9 dropped, 4-24 characters. A shipped hash can be tested by anyone who guesses
+ * the word (the user's accepted trade-off): scrypt makes each guess slow, not impossible.
+ *
  * Honest limits: there is no server, so nothing stops one code from unlocking several Macs. `revoked` (code ids) in
  * beta-codes.json is the only lever: an update that lists a leaked code locks it out, activations included.
  *
@@ -27,7 +32,7 @@ export const SCRYPT = { N: 1 << 15, r: 8, p: 1, maxmem: 64 << 20 } as const
 export const ACTIVATION_FILE = 'beta-activation.json'
 
 export interface CodeEntry {
-  /** Public id, FBV-0001…: what the revocation list and the activation name. */
+  /** Public id, FBV-0001… (W-001… for a word key): what the revocation list and the activation name. */
   id: string
   /** First 4 hex of sha256('fbv-tag|' + code): picks the candidate entries. */
   tag: string
@@ -43,7 +48,7 @@ export interface CodeBook {
 
 export interface Activation {
   id: string
-  /** The code itself (12 characters), checked against the book on every launch. */
+  /** The code itself (12 characters) or the normalised word key, checked against the book on every launch. */
   code: string
   at: string
   /** sha256 of this Mac's hardware UUID. */
@@ -59,6 +64,26 @@ export function normalizeCode(raw: unknown): string | null {
   if (s.length !== CODE_LENGTH) return null
   for (const ch of s) if (!CODE_ALPHABET.includes(ch)) return null
   return s
+}
+
+export const WORD_MIN = 4
+export const WORD_MAX = 24
+
+/** A word key from whatever was typed: upper case, A-Z and 0-9 only (everything else dropped), 4-24 characters. */
+export function normalizeWord(raw: unknown): string | null {
+  if (typeof raw !== 'string' || raw.length > 64) return null
+  const s = raw.toUpperCase().replace(/[^A-Z0-9]/g, '')
+  return s.length >= WORD_MIN && s.length <= WORD_MAX ? s : null
+}
+
+/**
+ * What the typed text can be checked as, in order: the code it spells, then the word key. Both, because a 12-letter
+ * word with no U also reads as a code (O as 0, I and L as 1) and only its word form matches its hash.
+ */
+export function keyCandidates(raw: unknown): string[] {
+  const code = normalizeCode(raw)
+  const word = normalizeWord(raw)
+  return [...new Set([code, word].filter((k): k is string => k !== null))]
 }
 
 export const formatCode = (code: string): string => `FBV-${code.slice(0, 4)}-${code.slice(4, 8)}-${code.slice(8, 12)}`
@@ -93,6 +118,17 @@ export async function findCode(book: CodeBook, code: string): Promise<CodeEntry 
   }
   return null
 }
+
+/** The entry the typed text belongs to (as a code or as a word key) and the form that matched, or null. */
+export async function findKey(book: CodeBook, raw: unknown): Promise<{ entry: CodeEntry; key: string } | null> {
+  for (const key of keyCandidates(raw)) {
+    const entry = await findCode(book, key)
+    if (entry) return { entry, key }
+  }
+  return null
+}
+
+const isWordId = (id: string): boolean => id.startsWith('W-')
 
 export const macDigest = (uuid: string): string => createHash('sha256').update(`fbv-mac|${uuid}`).digest('hex')
 
@@ -130,30 +166,38 @@ export class BetaAccess {
       a = null // corrupted: as if missing
     }
     if (!a || typeof a !== 'object' || a.mac !== this.mac) return { state: 'needed' }
-    const code = normalizeCode(a.code)
-    const entry = code ? await findCode(this.book, code) : null
-    if (!entry) return { state: 'needed' }
-    return this.book.revoked.includes(entry.id) ? { state: 'revoked', id: entry.id } : { state: 'active', id: entry.id }
+    const found = await findKey(this.book, a.code)
+    if (!found) return { state: 'needed' }
+    const { id } = found.entry
+    return this.book.revoked.includes(id) ? { state: 'revoked', id } : { state: 'active', id }
   }
 
-  /** Checks a typed code; on success stores this Mac's activation. A failure holds the next try for a second. */
+  /** Checks a typed code or word key; on success stores this Mac's activation. A failure holds the next try for a second. */
   async activate(raw: unknown, now = Date.now()): Promise<ActivateResult> {
     if (now < this.busyUntil) return { ok: false, error: 'One moment, then try again.' }
-    const code = normalizeCode(raw)
-    const entry = code ? await findCode(this.book, code) : null
-    if (!entry) {
+    const found = await findKey(this.book, raw)
+    if (!found) {
       this.busyUntil = now + 1000
-      return { ok: false, error: code ? "That invite code isn't valid." : 'An invite code looks like FBV-XXXX-XXXX-XXXX.' }
+      return { ok: false, error: refusal(raw) }
     }
+    const { entry, key } = found
     if (this.book.revoked.includes(entry.id)) {
       this.busyUntil = now + 1000
-      return { ok: false, error: 'That invite code was withdrawn. Ask for a new one.' }
+      const what = isWordId(entry.id) ? 'key' : 'invite code'
+      return { ok: false, error: `That ${what} was withdrawn. Ask for a new one.` }
     }
     mkdirSync(join(this.file, '..'), { recursive: true })
     const tmp = `${this.file}.${process.pid}.tmp`
-    const activation: Activation = { id: entry.id, code: code!, at: new Date(now).toISOString(), mac: this.mac }
+    const activation: Activation = { id: entry.id, code: key, at: new Date(now).toISOString(), mac: this.mac }
     writeFileSync(tmp, `${JSON.stringify(activation, null, 2)}\n`, { mode: 0o600 })
     renameSync(tmp, this.file)
     return { ok: true, id: entry.id }
   }
+}
+
+/** Why typed text was refused: FBV-shaped text keeps the code messages, anything else is talked about as a key. */
+function refusal(raw: unknown): string {
+  if (normalizeCode(raw)) return "That invite code isn't valid."
+  if (typeof raw === 'string' && /^\s*FBV[\s\-–—_.]/i.test(raw)) return 'An invite code looks like FBV-XXXX-XXXX-XXXX.'
+  return normalizeWord(raw) ? "That key isn't valid." : 'Type your invite code or key.'
 }

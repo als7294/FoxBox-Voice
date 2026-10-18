@@ -7,12 +7,27 @@ import { bridge } from '@/env'
 import { animate, reducedMotion } from '@/visuals/motion'
 import styles from './setup.module.css'
 
-/** FBV-XXXX-XXXX-XXXX as it's typed: upper case, dashes added (the check itself is main's, offline). */
+const KEY_MAX = 24
+const CROCKFORD = /^[0-9A-HJKMNP-TV-Z]+$/
+
+/**
+ * What's typed, as it shows. Anything that looks like an invite code (it starts with FBV, or it's exactly 12 code
+ * characters) becomes FBV-XXXX-XXXX-XXXX; anything else is a key and passes through as typed. A "code" that grows
+ * past 12 characters can't be one, so it goes back to plain letters: a long word key types through. The check itself
+ * is main's, offline, and reads both.
+ */
 export function formatTyped(raw: string): string {
-  let s = raw.toUpperCase().replace(/[^0-9A-Z]/g, '')
-  if (s.startsWith('FBV')) s = s.slice(3)
-  s = s.slice(0, 12)
-  return s ? `FBV-${s.match(/.{1,4}/g)!.join('-')}` : ''
+  const s = raw.toUpperCase().replace(/[^0-9A-Z]/g, '')
+  const fbv = s.startsWith('FBV')
+  const body = fbv ? s.slice(3) : s
+  if (fbv && body.length > 12) return body.slice(0, KEY_MAX)
+  if ((fbv && body.length > 0) || (body.length === 12 && CROCKFORD.test(body))) return `FBV-${body.match(/.{1,4}/g)!.join('-')}`
+  return raw.slice(0, KEY_MAX)
+}
+
+/** Unlock wakes for a whole code, or a key of 4+ letters or digits. */
+export function ready(typed: string): boolean {
+  return typed.startsWith('FBV-') ? typed.length === 18 : typed.replace(/[^0-9A-Za-z]/g, '').length >= 4
 }
 
 /** ACTIVATE's backdrop: the launch scene (the boot screen's painted loop) under its night scrim; a still frame under
@@ -106,7 +121,9 @@ export function ActivateStep({
       data-testid="beta-access"
       aria-busy={card === 'checking'}
     >
-      <h1 className={styles.activateLine}>{state?.state === 'revoked' ? 'Enter a new invite code.' : 'Enter your invite code.'}</h1>
+      <h1 className={styles.activateLine}>
+        {state?.state === 'revoked' ? 'Enter a new invite code or key.' : 'Enter your invite code or key.'}
+      </h1>
       <input
         ref={input}
         id="invite"
@@ -117,13 +134,13 @@ export function ActivateStep({
           setError(null)
           if (card === 'bad') setCard('idle')
         }}
-        placeholder="FBV-XXXX-XXXX-XXXX"
+        placeholder="FBV-XXXX-XXXX-XXXX or your key"
         autoComplete="off"
         autoCapitalize="characters"
         spellCheck={false}
-        maxLength={18}
+        maxLength={KEY_MAX}
         disabled={Boolean(accepted)}
-        aria-label="Invite code"
+        aria-label="Invite code or key"
         aria-invalid={Boolean(error)}
         aria-describedby="invite-status"
       />
@@ -135,7 +152,7 @@ export function ActivateStep({
             : (error ?? (state?.state === 'revoked' ? `The invite this Mac used (${state.id}) was withdrawn.` : ' '))}
       </p>
       <div>
-        <Button type="submit" variant="primary" size="lg" disabled={card === 'checking' || Boolean(accepted) || code.length < 18}>
+        <Button type="submit" variant="primary" size="lg" disabled={card === 'checking' || Boolean(accepted) || !ready(code)}>
           {card === 'checking' ? 'Checking…' : accepted ? 'Unlocked' : 'Unlock'}
         </Button>
       </div>

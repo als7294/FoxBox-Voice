@@ -2,7 +2,18 @@ import { mkdtempSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { ACTIVATION_FILE, BetaAccess, entryFor, formatCode, macDigest, normalizeCode, randomCode, type CodeBook } from '../../../src/main/beta'
+import {
+  ACTIVATION_FILE,
+  BetaAccess,
+  entryFor,
+  formatCode,
+  keyCandidates,
+  macDigest,
+  normalizeCode,
+  normalizeWord,
+  randomCode,
+  type CodeBook,
+} from '../../../src/main/beta'
 
 const temp = () => mkdtempSync(join(tmpdir(), 'fbv-beta-'))
 
@@ -67,6 +78,50 @@ describe('invite codes', () => {
     expect(await access().status()).toEqual({ state: 'needed' })
     writeFileSync(file, 'null')
     expect(await access().status()).toEqual({ state: 'needed' })
+  })
+
+  it('reads a word key: upper case, letters and digits only, 4 to 24 of them', () => {
+    expect(normalizeWord('  Night Shift 9! ')).toBe('NIGHTSHIFT9')
+    expect(normalizeWord('abc')).toBeNull() // under 4
+    expect(normalizeWord('a'.repeat(25))).toBeNull() // over 24
+    expect(normalizeWord('é-é-é-é')).toBeNull() // nothing left after A-Z 0-9
+    expect(normalizeWord(7)).toBeNull()
+    // A 12-letter word with no U also reads as a code (O as 0, L as 1): both forms are tried.
+    expect(keyCandidates('basslinedrop')).toEqual(['BASS11NEDR0P', 'BASSLINEDROP'])
+    expect(keyCandidates('FBV-AB12-CD34-EF56')).toEqual(['AB12CD34EF56', 'FBVAB12CD34EF56'])
+  })
+
+  it('unlocks with a word key minted into the book, refuses a wrong one, and a revoked key id locks it out', async () => {
+    // A dummy word for the test only: the real key is minted by the user and never seen here.
+    const word = 'Dummy Test Word 42'
+    const book: CodeBook = { revoked: [], codes: [await entryFor('FBV-0001', randomCode()), await entryFor('W-001', normalizeWord(word)!)] }
+    expect(JSON.stringify(book)).not.toContain('DUMMYTESTWORD42')
+    const dir = temp()
+    const access = new BetaAccess(dir, book, 'MAC-1')
+    expect(await access.activate('dummy test word 41', 0)).toEqual({ ok: false, error: "That key isn't valid." })
+    expect(await access.activate('ab', 2000)).toEqual({ ok: false, error: 'Type your invite code or key.' })
+    // However it's typed: case, spaces and symbols don't matter.
+    expect(await access.activate('dummy-test-word-42', 4000)).toEqual({ ok: true, id: 'W-001' })
+    expect(await access.status()).toEqual({ state: 'active', id: 'W-001' })
+    expect(JSON.parse(readFileSync(join(dir, ACTIVATION_FILE), 'utf8')).code).toBe('DUMMYTESTWORD42')
+    // Revoked by id, like a code: the activation stops and the key is refused.
+    const revoked = { ...book, revoked: ['W-001'] }
+    expect(await new BetaAccess(dir, revoked, 'MAC-1').status()).toEqual({ state: 'revoked', id: 'W-001' })
+    expect(await new BetaAccess(temp(), revoked, 'MAC-1').activate(word, 0)).toEqual({ ok: false, error: 'That key was withdrawn. Ask for a new one.' })
+  })
+
+  it('a 12-letter word that also reads as a code still unlocks, now and on the next launch', async () => {
+    const word = 'basslinedrop'
+    const book: CodeBook = { revoked: [], codes: [await entryFor('W-002', normalizeWord(word)!)] }
+    const dir = temp()
+    expect(await new BetaAccess(dir, book, 'M').activate(word, 0)).toEqual({ ok: true, id: 'W-002' })
+    expect(await new BetaAccess(dir, book, 'M').status()).toEqual({ state: 'active', id: 'W-002' })
+  })
+
+  it('keeps the code messages for anything typed as a code', async () => {
+    const access = new BetaAccess(temp(), { revoked: [], codes: [await entryFor('FBV-0001', randomCode())] }, 'M')
+    expect(await access.activate('FBV-0000-0000-0000', 0)).toEqual({ ok: false, error: "That invite code isn't valid." })
+    expect(await access.activate('FBV-AB12-CD34-EF5', 2000)).toEqual({ ok: false, error: 'An invite code looks like FBV-XXXX-XXXX-XXXX.' })
   })
 
   it('refuses a forged activation: everything the app ships, this Mac, but no code', async () => {

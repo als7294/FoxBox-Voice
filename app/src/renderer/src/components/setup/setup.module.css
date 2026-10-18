@@ -774,9 +774,12 @@
   font: 700 19px/1 var(--vb-font-mono);
   letter-spacing: 0.12em;
 }
+/* The placeholder names both (a code or a key): too long for the code's wide mono, so it's set smaller, never under 16. */
 .codeInput::placeholder {
   color: var(--vb-dim);
   opacity: 0.6;
+  font: 500 16px/1 'Geist', system-ui, sans-serif;
+  letter-spacing: 0;
 }
 .codeInput:focus-visible {
   outline: 2px solid var(--vb-accent);
